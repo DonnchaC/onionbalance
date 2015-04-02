@@ -34,6 +34,13 @@ def generate_hs_descriptor(permanent_key, introduction_point_list=None,
     secret_id_part = util.calc_secret_id_part(time_period, None, replica)
     descriptor_id = util.calc_descriptor_id(permanent_id, secret_id_part)
 
+    # If we have no introduction
+    if not introduction_point_list:
+        logger.warning("No introduction points for service '%s'. "
+                       "Skipping upload." % util.calc_onion_address(
+                            permanent_key))
+        return None
+
     intro_section = make_introduction_points_part(
         introduction_point_list
     )
@@ -185,6 +192,7 @@ def upload_descriptor(controller, signed_descriptor, hsdirs=None):
     responsible directories
     """
     logger.debug("Sending HS descriptor upload")
+    print(signed_descriptor)
 
     # Provide server fingerprints to control command if HSDirs are specified.
     if hsdirs:

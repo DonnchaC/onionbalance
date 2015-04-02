@@ -166,7 +166,11 @@ class HiddenService(object):
         """
         for replica in range(0, config.cfg.config.get("replicas")):
             signed_descriptor = self._get_signed_descriptor(replica=replica)
-            descriptor.upload_descriptor(self.controller, signed_descriptor)
+
+            # Upload if a signed descriptor was generated successfully
+            if signed_descriptor:
+                descriptor.upload_descriptor(self.controller,
+                                             signed_descriptor)
 
         self.last_uploaded = datetime.datetime.utcnow()
 
