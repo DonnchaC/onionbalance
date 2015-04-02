@@ -79,5 +79,5 @@ An example config file is provided in `config.yaml.example`.
 
 Once your load balancing instances are running, you can run the onion load balancer by starting the management server:
 
-    $ python onion-balance/manage.py -f config.yaml
+    $ python onion-balance/manager.py -c config.yaml
 

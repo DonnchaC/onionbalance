@@ -17,6 +17,7 @@ def generate_hs_descriptor(permanent_key, introduction_point_list=None,
                            replica=0, timestamp=None):
     """
     High-level interface for generating a signed HS descriptor
+
     TODO: Allow generation of descriptors for future timeperiod,
           to help clients with a skewed clock
     """
@@ -52,6 +53,9 @@ def generate_hs_descriptor(permanent_key, introduction_point_list=None,
 def generate_hs_descriptor_raw(desc_id_base32, permanent_key_block,
                                secret_id_part_base32, publication_time,
                                introduction_points_part):
+    """
+    Generate hidden service descriptor string
+    """
     doc = []
     doc.append("rendezvous-service-descriptor {}".format(desc_id_base32))
     doc.append("version 2")
@@ -68,10 +72,15 @@ def generate_hs_descriptor_raw(desc_id_base32, permanent_key_block,
     return unsigned_descriptor
 
 
-def make_introduction_points_part(introduction_point_list):
-    # If not intro points were specified, we should create and empty block
+def make_introduction_points_part(introduction_point_list=None):
+    """
+    Make introduction point block from list of IntroductionPoint objects
+    """
+
+    # If no intro points were specified, we should create an empty list
     if not introduction_point_list:
         introduction_point_list = []
+
     intro = []
     for intro_point in introduction_point_list:
         intro.append("introduction-point {}".format(intro_point.identifier))
@@ -114,8 +123,8 @@ def sign_digest(digest, private_key):
     """
     Sign, base64 encode, wrap and add Tor signature headers
 
-    The message digest is PKCS1 padded without the optional algorithmIdentifier
-    section.
+    The message digest is PKCS1 padded without the optional
+    algorithmIdentifier section.
     """
 
     digest = util.add_pkcs1_padding(digest)
@@ -133,7 +142,9 @@ def sign_digest(digest, private_key):
 
 
 def sign_descriptor(descriptor, service_key):
-    """'Sign or resign a hidden service descriptor"""
+    """
+    Sign or resign a provided hidden service descriptor
+    """
     TOKEN_HSDESCRIPTOR_SIGNATURE = '\nsignature\n'
 
     # Remove signature block if it exists
@@ -150,8 +161,9 @@ def sign_descriptor(descriptor, service_key):
 
 def fetch_descriptor(controller, onion_address, hsdir=None):
     """
-    Try fetch a HS descriptor from any of the responsible HSDir's"
-    TODO: allow a hsdir to be specified
+    Try fetch a HS descriptor from any of the responsible HSDirs
+
+    TODO: Allow a custom HSDir to be specified
     """
     logger.info("Sending HS descriptor fetch for %s.onion" % onion_address)
     response = controller.msg("HSFETCH %s" % (onion_address))
