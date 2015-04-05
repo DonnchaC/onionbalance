@@ -131,16 +131,14 @@ def main():
                                   EventType.HS_DESC,
                                   EventType.HS_DESC_CONTENT)
 
-    # Run initial fetch of HS instance descriptors
-    hiddenservice.fetch_all_descriptors(controller)
-    time.sleep(15)
-    hiddenservice.publish_all_descriptors()
-
     # Schedule descriptor fetch and upload events
     schedule.every(config.cfg.config.get('refresh')).seconds.do(
         hiddenservice.fetch_all_descriptors, controller)
     schedule.every(config.cfg.config.get('refresh')).seconds.do(
         hiddenservice.publish_all_descriptors)
+
+    # Run initial fetch of HS instance descriptors
+    schedule.run_all(delay_seconds=15)
 
     # Begin main loop to poll for HS descriptors
     try:
