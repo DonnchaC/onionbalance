@@ -2,6 +2,7 @@
 import datetime
 import random
 import time
+import base64
 
 import Crypto.PublicKey.RSA
 import stem.descriptor.hidden_service_descriptor
@@ -78,15 +79,29 @@ class HiddenService(object):
 
     def _descriptor_expiring(self):
         """
-        Check if the last uploaded super descriptor is expiring (> 1
-        hour old).
+        Check if the last uploaded super descriptor is old and should be
+        uploaded again.
         """
         if not self.last_uploaded:
             # No descriptor uploaded yet, we should publish.
             return True
 
         descriptor_age = (datetime.datetime.utcnow() - self.last_uploaded)
-        if (descriptor_age.total_seconds() > 60 * 60):
+        if (descriptor_age.total_seconds() >
+                config.cfg.config.get("descriptor_upload_period")):
+            return True
+
+        return False
+
+    def _descriptor_id_changing_soon(self):
+        """
+        If the descriptor ID will change soon, upload under both descriptor IDs
+        """
+        seconds_valid = util.get_seconds_valid(
+            time.time(), base64.b32decode(self.onion_address, 1))
+
+        # Check if descriptor ID will be changing within the overlap period.
+        if seconds_valid < config.cfg.config.get('descriptor_overlap_period'):
             return True
 
         return False
@@ -141,7 +156,7 @@ class HiddenService(object):
 
         return choosen_intro_points
 
-    def _get_signed_descriptor(self, replica=0):
+    def _get_signed_descriptor(self, replica=0, timestamp=None):
         """
         Generate a signed HS descriptor for this hidden service
         """
@@ -153,19 +168,18 @@ class HiddenService(object):
         signed_descriptor = descriptor.generate_hs_descriptor(
             self.service_key,
             introduction_point_list=introduction_points,
-            replica=replica
+            replica=replica,
+            timestamp=timestamp
         )
         return signed_descriptor
 
-    def _upload_descriptor(self):
+    def _upload_descriptor(self, timestamp=None):
         """
         Create, sign and upload a super-descriptors for this HS
-
-        TODO: If the descriptor ID is changing soon, upload to current
-              and upcoming set's of HSDirs.
         """
         for replica in range(0, config.cfg.config.get("replicas")):
-            signed_descriptor = self._get_signed_descriptor(replica=replica)
+            signed_descriptor = self._get_signed_descriptor(
+                replica=replica, timestamp=timestamp)
 
             # Upload if a signed descriptor was generated successfully
             if signed_descriptor:
@@ -186,6 +200,14 @@ class HiddenService(object):
                         self.onion_address)
 
             self._upload_descriptor()
+
+            # If the descriptor ID will change soon, need to upload under
+            # the new ID too.
+            if self._descriptor_id_changing_soon():
+                logger.info("Publishing new descriptor for '%s' under "
+                            "next descriptor ID" % self.onion_address)
+                next_time = datetime.datetime.utcnow() + datetime.timedelta(1)
+                self._upload_descriptor(timestamp=next_time)
 
 
 class Instance(object):

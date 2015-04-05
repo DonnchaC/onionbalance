@@ -52,7 +52,15 @@ def get_time_period(time, permanent_id):
     time-period = (current-time + permanent-id-byte * 86400 / 256) / 86400
     """
     permanent_id_byte = int(struct.unpack('B', permanent_id[0:1])[0])
-    return int((time + permanent_id_byte * 86400 / 256) / 86400)
+    return int((int(time) + permanent_id_byte * 86400 / 256) / 86400)
+
+
+def get_seconds_valid(time, permanent_id):
+    """
+    Calculate seconds until the descriptor ID changes
+    """
+    permanent_id_byte = int(struct.unpack('B', permanent_id[0:1])[0])
+    return 86400 - int((int(time) + permanent_id_byte * 86400 / 256) % 86400)
 
 
 def calc_secret_id_part(time_period, descriptor_cookie, replica):
