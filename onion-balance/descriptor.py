@@ -192,7 +192,6 @@ def upload_descriptor(controller, signed_descriptor, hsdirs=None):
     responsible directories
     """
     logger.debug("Sending HS descriptor upload")
-    print(signed_descriptor)
 
     # Provide server fingerprints to control command if HSDirs are specified.
     if hsdirs:
