@@ -209,6 +209,10 @@ class HiddenService(object):
                 next_time = datetime.datetime.utcnow() + datetime.timedelta(1)
                 self._upload_descriptor(timestamp=next_time)
 
+        else:
+            logger.debug("Not publishing a descriptor for '%s'" %
+                         self.onion_address)
+
 
 class Instance(object):
     """
@@ -249,7 +253,7 @@ class Instance(object):
 
         # Parse and store this descriptors introduction points.
         parsed_descriptor = stem.descriptor.hidden_service_descriptor.\
-            HiddenServiceDescriptor(descriptor_content)
+            HiddenServiceDescriptor(descriptor_content, validate=True)
 
         # Parse the introduction point list, decrypting if necessary
         introduction_points = parsed_descriptor.introduction_points(
