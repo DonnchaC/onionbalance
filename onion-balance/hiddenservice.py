@@ -263,7 +263,7 @@ class Instance(object):
         if self.onion_address != descriptor_onion_address:
             logger.error("Received descriptor for service (%s) did not match "
                          "the expected onion address %s" %
-                         descriptor_onion_address, )
+                         (descriptor_onion_address, self.onion_address))
             return None
 
         # Parse the introduction point list, decrypting if necessary
