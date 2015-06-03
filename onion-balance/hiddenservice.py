@@ -229,6 +229,7 @@ class Instance(object):
 
         self.introduction_points = []
         self.last_fetched = None
+        self.last_descriptor_timestamp = None
         self.changed_since_published = False
 
     def fetch_descriptor(self):
@@ -265,6 +266,18 @@ class Instance(object):
                          "the expected onion address %s" %
                          (descriptor_onion_address, self.onion_address))
             return None
+
+        # Reject descriptor if it timestamp is older than the latest
+        # descriptor. Prevents HSDir's replaying old, expired descriptors
+        if (self.last_descriptor_timestamp and
+                parsed_descriptor.published < self.last_descriptor_timestamp):
+            logger.error("Received descriptor for instance (%s) with "
+                         "publication timestamp older than the last received "
+                         "descriptor. Skipping descriptor." %
+                         self.onion_address)
+            return
+        else:
+            self.last_descriptor_timestamp = parsed_descriptor.published
 
         # Parse the introduction point list, decrypting if necessary
         introduction_points = parsed_descriptor.introduction_points(
