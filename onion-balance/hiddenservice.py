@@ -255,6 +255,17 @@ class Instance(object):
         parsed_descriptor = stem.descriptor.hidden_service_descriptor.\
             HiddenServiceDescriptor(descriptor_content, validate=True)
 
+        # Ensure the received descriptor matches the requested descriptor
+        permanent_key = Crypto.PublicKey.RSA.importKey(
+            parsed_descriptor.permanent_key)
+        descriptor_onion_address = util.calc_onion_address(permanent_key)
+
+        if self.onion_address != descriptor_onion_address:
+            logger.error("Received descriptor for service (%s) did not match "
+                         "the expected onion address %s" %
+                         descriptor_onion_address, )
+            return None
+
         # Parse the introduction point list, decrypting if necessary
         introduction_points = parsed_descriptor.introduction_points(
             authentication_cookie=self.authentication_cookie)
