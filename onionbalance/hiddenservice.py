@@ -193,8 +193,8 @@ class HiddenService(object):
         Publish descriptor if have new IP's or if descriptor has expired
         """
 
-        if (    self._intro_points_modified() or
-                self._descriptor_expiring() or
+        if (self._intro_points_modified() or
+            self._descriptor_expiring() or
                 force):
             logger.info("Publishing new descriptor for '%s'" %
                         self.onion_address)

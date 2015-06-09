@@ -39,7 +39,7 @@ def generate_hs_descriptor(permanent_key, introduction_point_list=None,
     if not introduction_point_list:
         logger.warning("No introduction points for service '%s'. "
                        "Skipping upload." % util.calc_onion_address(
-                            permanent_key))
+                           permanent_key))
         return None
 
     intro_section = make_introduction_points_part(
