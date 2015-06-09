@@ -5,7 +5,7 @@ handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter(fmt="%(asctime)s [%(levelname)s]: "
                                            "%(message)s"))
 
-logger = logging.getLogger("onion-load-balancer")
+logger = logging.getLogger("onionbalance")
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 

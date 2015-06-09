@@ -3,13 +3,13 @@ import hashlib
 import base64
 import textwrap
 import datetime
+import sys
 
 import Crypto.Util.number
 import stem
 
-import util
-import log
-import sys
+from onionbalance import util
+from onionbalance import log
 
 logger = log.get_logger()
 

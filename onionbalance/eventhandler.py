@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import stem
 
-import log
-import config
+from onionbalance import log
+from onionbalance import config
 
 logger = log.get_logger()
 

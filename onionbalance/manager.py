@@ -10,18 +10,18 @@ import time
 import os
 import logging
 
-# import Crypto.PublicKeyl
+# import Crypto.PublicKey
 import stem
 from stem.control import Controller, EventType
 import yaml
 import schedule
 
-import log
-import util
-import config
-import hiddenservice
-import eventhandler
-
+# import .onionbalance.log
+from onionbalance import log
+from onionbalance import util
+from onionbalance import config
+from onionbalance import hiddenservice
+from onionbalance import eventhandler
 
 logger = log.get_logger()
 

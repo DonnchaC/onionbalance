@@ -7,10 +7,10 @@ import base64
 import Crypto.PublicKey.RSA
 import stem.descriptor.hidden_service_descriptor
 
-import descriptor
-import util
-import log
-import config
+from onionbalance import descriptor
+from onionbalance import util
+from onionbalance import log
+from onionbalance import config
 
 logger = log.get_logger()
 
