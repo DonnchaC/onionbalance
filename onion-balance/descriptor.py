@@ -178,7 +178,8 @@ def fetch_descriptor(controller, onion_address, hsdir=None):
     (response_code, divider, response_content) = response.content()[0]
     if not response.is_ok():
         if response_code == "510":
-            logger.error("This version of Tor does not support HSFETCH command")
+            logger.error("This version of Tor does not support HSFETCH "
+                         "command")
             sys.exit(1)
         if response_code == "552":
             raise stem.InvalidRequest(response_code, response_content)
