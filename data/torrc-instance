@@ -1,0 +1,16 @@
+# Sample Tor config for the onion service instance servers
+# ---
+# The instance servers run standard onion services. In Basic mode the
+# control port does not need to be enabled.
+
+DataDirectory tor-data
+
+# ControlPort 9051
+# CookieAuthentication 1
+SocksPort 0
+
+# Configure each onion service instance with a unique permanent key.
+HiddenServiceDir tor-data/hidden_service/
+HiddenServicePort 80 127.0.0.1:80
+
+# RunAsDaemon 1
