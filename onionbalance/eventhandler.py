@@ -30,18 +30,18 @@ class EventHandler(object):
 
         Update the HS instance object with the data from the new descriptor.
         """
-        logger.debug("Received new HS_DESC_CONTENT event for %s" %
+        logger.debug("Received new HS_DESC_CONTENT event for %s.onion" %
                      desc_content_event.address)
 
         # Make sure the descriptor is not empty
         descriptor_text = str(desc_content_event.descriptor).encode('utf-8')
         if len(descriptor_text) < 5:
-            logger.debug("Empty descriptor received for %s" %
+            logger.debug("Empty descriptor received for %s.onion" %
                          desc_content_event.address)
             return
 
         # Find the HS instance for this descriptor
-        for service in config.cfg.hidden_services:
+        for service in config.services:
             for instance in service.instances:
                 if instance.onion_address == desc_content_event.address:
                     instance.update_descriptor(descriptor_text)

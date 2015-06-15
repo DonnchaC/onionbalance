@@ -4,7 +4,7 @@
 # or more instances which contain the onion address of the load balancing
 # HS and any authentication data needed to access that HS.
 
-refresh: 600 # How often to poll for updated descriptors
+REFRESH_INTERVAL: 600 # How often to poll for updated descriptors
 services:
     - key: /path/to/private_key # 7s4hxwwifcslrus2.onion
       instances:

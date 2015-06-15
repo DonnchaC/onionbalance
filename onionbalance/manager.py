@@ -72,7 +72,12 @@ def main():
     Entry point when invoked over the command line.
     """
     args = parse_cmd_args()
-    config.cfg.config.update(parse_config_file(args.config))
+    config_file_options = parse_config_file(args.config)
+
+    # Update global configuration with options specified in the config file
+    for setting in dir(config):
+        if setting.isupper() and config_file_options.get(setting):
+            setattr(config, setting, config_file_options.get(setting))
 
     logger.setLevel(logging.__dict__[args.verbosity.upper()])
 
@@ -95,7 +100,7 @@ def main():
     else:
         logger.debug("Successfully authenticated to the Tor control port")
 
-    # Check that the Tor client has support for HSPOST contorl command
+    # Check that the Tor client supports the HSPOST control port command
     if not controller.get_version() >= stem.version.Requirement.HSPOST:
         logger.error("A Tor version >= {} is required. You may need to "
                      "compile Tor from source or install a package from "
@@ -103,24 +108,24 @@ def main():
                         stem.version.Requirement.HSPOST))
         sys.exit(1)
 
-    # Load the keys and configuration for each hidden service
-    for service in config.cfg.config.get("services"):
+    # Load the keys and config for each onion service
+    for service in config_file_options.get('services'):
         service_key = util.key_decrypt_prompt(service.get("key"))
         if not service_key:
-            logger.error("Private key could not be imported (%s)" %
+            logger.error("Private key %s could not be loaded" %
                          args.key)
             sys.exit(0)
         else:
-            # Successfully import the private key
+            # Successfully imported the private key
             onion_address = util.calc_onion_address(service_key)
-            logger.debug("Loaded private key for service '%s'" %
+            logger.debug("Loaded private key for service %s.onion" %
                          onion_address)
 
-        # Parse the load balancing instances for this hidden service
+        # Load all instances for the current onion service
         instance_config = service.get("instances", [])
         if not instance_config:
-            logger.error("No load balancing hidden service "
-                         "specified for %s" % onion_address)
+            logger.error("Could not load and instances for service "
+                         "%s.onion" % onion_address)
             sys.exit(1)
         else:
             instances = []
@@ -131,10 +136,10 @@ def main():
                     authentication_cookie=instance.get("auth")
                 ))
 
-            logger.info("Loaded {} balancing services for {}".format(
+            logger.info("Loaded {} instances for service {}.onion".format(
                         len(instances), onion_address))
 
-        config.cfg.hidden_services.append(hiddenservice.HiddenService(
+        config.services.append(hiddenservice.HiddenService(
             controller=controller,
             service_key=service_key,
             instances=instances
@@ -147,9 +152,9 @@ def main():
                                   EventType.HS_DESC_CONTENT)
 
     # Schedule descriptor fetch and upload events
-    schedule.every(config.cfg.config.get('refresh')).seconds.do(
+    schedule.every(config.REFRESH_INTERVAL).seconds.do(
         hiddenservice.fetch_all_descriptors, controller)
-    schedule.every(config.cfg.config.get('refresh')).seconds.do(
+    schedule.every(config.REFRESH_INTERVAL).seconds.do(
         hiddenservice.publish_all_descriptors)
 
     # Run initial fetch of HS instance descriptors
@@ -161,6 +166,7 @@ def main():
             schedule.run_pending()
             time.sleep(1)
     except KeyboardInterrupt:
-        logger.info("Stopping descriptor uploads")
+        logger.info("Keyboard interrupt received. Stopping the "
+                    "management server")
 
     return 0

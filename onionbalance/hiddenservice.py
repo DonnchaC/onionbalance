@@ -25,7 +25,7 @@ def fetch_all_descriptors(controller):
     controller.signal(stem.control.Signal.NEWNYM)
     time.sleep(5)
 
-    for service in config.cfg.hidden_services:
+    for service in config.services:
         for instance in service.instances:
                 instance.fetch_descriptor()
 
@@ -35,7 +35,7 @@ def publish_all_descriptors():
     Called periodically to upload new super-descriptors if needed
     """
     logger.info("Running periodic descriptor publish")
-    for service in config.cfg.hidden_services:
+    for service in config.services:
         service.publish()
 
 
@@ -87,8 +87,7 @@ class HiddenService(object):
             return True
 
         descriptor_age = (datetime.datetime.utcnow() - self.last_uploaded)
-        if (descriptor_age.total_seconds() >
-                config.cfg.config.get("descriptor_upload_period")):
+        if (descriptor_age.total_seconds() > config.DESCRIPTOR_UPLOAD_PERIOD):
             return True
 
         return False
@@ -101,7 +100,7 @@ class HiddenService(object):
             time.time(), base64.b32decode(self.onion_address, 1))
 
         # Check if descriptor ID will be changing within the overlap period.
-        if seconds_valid < config.cfg.config.get('descriptor_overlap_period'):
+        if seconds_valid < config.DESCRIPTOR_OVERLAP_PERIOD:
             return True
 
         return False
@@ -123,14 +122,14 @@ class HiddenService(object):
         for instance in self.instances:
 
             if not instance.last_fetched:
-                logger.debug("No descriptor fetched for instance '%s' yet. "
-                             "Skipping!" % instance.onion_address)
+                logger.debug("No descriptor fetched for instance %s.onion "
+                            "yet. Skipping!" % instance.onion_address)
                 continue
 
             # Check if the intro points are too old
             intro_age = datetime.datetime.utcnow() - instance.last_fetched
             if intro_age.total_seconds() > 60 * 60:
-                logger.info("Our introduction points for instance '%s' "
+                logger.info("Our introduction points for instance %s.onion "
                             "are too old. Skipping!" % instance.onion_address)
                 continue
 
@@ -138,11 +137,9 @@ class HiddenService(object):
             instance.changed_since_published = False
             combined_intro_points.extend(instance.introduction_points)
 
-        # Choose up to `max_intro_points` IPs from the combined set
+        # Choose up to `MAX_INTRO_POINTS` IPs from the combined set
         max_introduction_points = min(
-            len(combined_intro_points),
-            config.cfg.config.get("max_intro_points")
-        )
+            len(combined_intro_points), config.MAX_INTRO_POINTS)
 
         choosen_intro_points = random.sample(combined_intro_points,
                                              max_introduction_points)
@@ -150,7 +147,7 @@ class HiddenService(object):
         # instances are online and have introduction points included.
         random.shuffle(choosen_intro_points)
 
-        logger.debug("Selected %d IPs (of %d) for service '%s'" %
+        logger.debug("Selected %d IPs (of %d) for service %s.onion" %
                      (len(choosen_intro_points), len(combined_intro_points),
                       self.onion_address))
 
@@ -177,7 +174,7 @@ class HiddenService(object):
         """
         Create, sign and upload a super-descriptors for this HS
         """
-        for replica in range(0, config.cfg.config.get("replicas")):
+        for replica in range(0, config.REPLICAS):
             signed_descriptor = self._get_signed_descriptor(
                 replica=replica, timestamp=timestamp)
 
@@ -196,7 +193,7 @@ class HiddenService(object):
         if (self._intro_points_modified() or
             self._descriptor_expiring() or
                 force):
-            logger.info("Publishing new descriptor for '%s'" %
+            logger.info("Publishing new descriptor for service %s.onion" %
                         self.onion_address)
 
             self._upload_descriptor()
@@ -204,13 +201,13 @@ class HiddenService(object):
             # If the descriptor ID will change soon, need to upload under
             # the new ID too.
             if self._descriptor_id_changing_soon():
-                logger.info("Publishing new descriptor for '%s' under "
-                            "next descriptor ID" % self.onion_address)
+                logger.info("Publishing new descriptor for service %s.onion "
+                            "under next descriptor ID" % self.onion_address)
                 next_time = datetime.datetime.utcnow() + datetime.timedelta(1)
                 self._upload_descriptor(timestamp=next_time)
 
         else:
-            logger.debug("Not publishing a descriptor for '%s'" %
+            logger.debug("Not publishing a descriptor for %s.onion" %
                          self.onion_address)
 
 
@@ -236,7 +233,7 @@ class Instance(object):
         """
         Try fetch a fresh descriptor for this back-end HS instance.
         """
-        logger.debug("Trying to fetch a descriptor of instance '%s'" %
+        logger.debug("Trying to fetch a descriptor for instance %s.onion" %
                      self.onion_address)
         return descriptor.fetch_descriptor(self.controller, self.onion_address)
 
@@ -248,7 +245,8 @@ class Instance(object):
         points for this HS instance.
         """
 
-        logger.info("Received a descriptor for %s" % self.onion_address)
+        logger.info("Received a descriptor for instance %s.onion" %
+                    self.onion_address)
 
         self.last_fetched = datetime.datetime.utcnow()
 
@@ -262,8 +260,8 @@ class Instance(object):
         descriptor_onion_address = util.calc_onion_address(permanent_key)
 
         if self.onion_address != descriptor_onion_address:
-            logger.error("Received descriptor for service (%s) did not match "
-                         "the expected onion address %s" %
+            logger.error("Received a descriptor with address %s.onion that "
+                        " did not match the expected onion address %s.onion" %
                          (descriptor_onion_address, self.onion_address))
             return None
 
