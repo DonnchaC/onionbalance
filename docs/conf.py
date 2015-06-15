@@ -15,9 +15,10 @@
 
 import sys
 import os
-import shlex
+import datetime
 
 from onionbalance import __version__, __author__, __contact__
+import onionbalance
 
 # Ignore the 'dev' version suffix.
 if __version__.endswith('dev'):
@@ -27,7 +28,7 @@ if __version__.endswith('dev'):
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
 
@@ -41,6 +42,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinx.ext.doctest',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -52,14 +54,14 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The encoding of source files.
-#source_encoding = 'utf-8-sig'
+source_encoding = 'utf-8-sig'
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
 project = 'OnionBalance'
-copyright = '2015, %s'.format(__author__)
+copyright = '{}, {}'.format(datetime.datetime.now().year, __author__)
 author = __author__
 
 # The version info for the project you're documenting, acts as replacement for
@@ -184,7 +186,7 @@ html_static_path = ['_static']
 #html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True

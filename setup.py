@@ -3,13 +3,14 @@
 """setup.py: setuptools control."""
 
 import sys
+import os
 
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 import onionbalance
 
-with open("README.md", "rb") as f:
+with open(os.path.join(os.path.dirname(__file__), "README.rst"), "rb") as f:
     long_descr = f.read().decode("utf-8")
 
 

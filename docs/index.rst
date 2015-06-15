@@ -6,12 +6,26 @@
 Welcome to OnionBalance's documentation!
 ========================================
 
+.. include:: ../README.rst
+
+
+----
+
+
 Contents:
+----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
+   design
    onionbalance
+
+
+Todo List
+=========
+
+.. todolist::
 
 
 Indices and tables
