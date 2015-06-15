@@ -95,6 +95,14 @@ def main():
     else:
         logger.debug("Successfully authenticated to the Tor control port")
 
+    # Check that the Tor client has support for HSPOST contorl command
+    if not controller.get_version() >= stem.version.Requirement.HSPOST:
+        logger.error("A Tor version >= {} is required. You may need to "
+                     "compile Tor from source or install a package from "
+                     "the experimental Tor repository.".format(
+                        stem.version.Requirement.HSPOST))
+        sys.exit(1)
+
     # Load the keys and configuration for each hidden service
     for service in config.cfg.config.get("services"):
         service_key = util.key_decrypt_prompt(service.get("key"))
