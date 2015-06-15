@@ -110,7 +110,7 @@ class HiddenService(object):
         """
         Choose set of introduction points from all fresh descriptors
 
-        TODO: There are probably better algorithms for choosing which
+        .. todo:: There are probably better algorithms for choosing which
         introduction points to include. If we have more than
         `max_intro_points` introduction points, we will need to exclude
         some.  It probably sensible to prefer IPs which are new and

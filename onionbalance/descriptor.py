@@ -19,8 +19,8 @@ def generate_hs_descriptor(permanent_key, introduction_point_list=None,
     """
     High-level interface for generating a signed HS descriptor
 
-    TODO: Allow generation of descriptors for future timeperiod,
-          to help clients with a skewed clock
+    .. todo:: Allow generation of descriptors for future time periods
+          to help clients which have a skewed clock.
     """
 
     if not timestamp:
@@ -171,7 +171,7 @@ def fetch_descriptor(controller, onion_address, hsdir=None):
     """
     Try fetch a HS descriptor from any of the responsible HSDirs
 
-    TODO: Allow a custom HSDir to be specified
+    .. todo:: Allow a custom HSDir to be specified
     """
     logger.info("Sending HS descriptor fetch for %s.onion" % onion_address)
     response = controller.msg("HSFETCH %s" % (onion_address))
@@ -179,7 +179,7 @@ def fetch_descriptor(controller, onion_address, hsdir=None):
     if not response.is_ok():
         if response_code == "510":
             logger.error("This version of Tor does not support HSFETCH "
-                         "command")
+                         "command.")
             sys.exit(1)
         if response_code == "552":
             raise stem.InvalidRequest(response_code, response_content)

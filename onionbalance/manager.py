@@ -16,7 +16,6 @@ from stem.control import Controller, EventType
 import yaml
 import schedule
 
-# import .onionbalance.log
 from onionbalance import log
 from onionbalance import util
 from onionbalance import config
