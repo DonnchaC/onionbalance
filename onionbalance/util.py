@@ -15,11 +15,10 @@ def add_pkcs1_padding(message):
     padding = b''
     typeinfo = b'\x00\x01'
     separator = b'\x00'
-    for x in range(125 - len(message)):
-        padding += b'\xFF'
-    PKCS1paddedMessage = typeinfo + padding + separator + message
-    assert len(PKCS1paddedMessage) == 128
-    return PKCS1paddedMessage
+    padding = b'\xFF' * (125 - len(message))
+    padded_message = typeinfo + padding + separator + message
+    assert len(padded_message) == 128
+    return padded_message
 
 
 def get_asn1_sequence(rsa_key):
@@ -85,11 +84,11 @@ def rounded_timestamp(timestamp=None):
     return timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
 
-def base32_encode_str(bytes):
+def base32_encode_str(byte_str):
     """
     Encode bytes as lowercase base32 string
     """
-    return base64.b32encode(bytes).lower().decode('utf-8')
+    return base64.b32encode(byte_str).lower().decode('utf-8')
 
 
 def key_decrypt_prompt(key_file, retries=3):
@@ -116,4 +115,4 @@ def key_decrypt_prompt(key_file, retries=3):
                 return permanent_key
 
     # No private key was imported
-    raise ValueError("Could not import RSA key")
+    raise ValueError("Could not import RSA key.")

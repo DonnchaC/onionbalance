@@ -1,0 +1,13 @@
+ControlPort 9251
+SocksPort 9250
+CookieAuthentication 0
+DataDirectory ./tor-data
+# SafeLogging 0
+Log notice stdout
+
+FascistFirewall 1
+
+FetchDirInfoEarly 1
+FetchDirInfoExtraEarly 1
+FetchUselessDescriptors 1
+UseMicrodescriptors 0

@@ -3,24 +3,21 @@ import hashlib
 import base64
 import textwrap
 import datetime
-import sys
 
 import Crypto.Util.number
 import stem
 
 from onionbalance import util
 from onionbalance import log
+from onionbalance import config
 
 logger = log.get_logger()
 
 
-def generate_hs_descriptor(permanent_key, introduction_point_list=None,
-                           replica=0, timestamp=None):
+def generate_service_descriptor(permanent_key, introduction_point_list=None,
+                                replica=0, timestamp=None, deviation=0):
     """
     High-level interface for generating a signed HS descriptor
-
-    .. todo:: Allow generation of descriptors for future time periods
-          to help clients which have a skewed clock.
     """
 
     if not timestamp:
@@ -31,17 +28,20 @@ def generate_hs_descriptor(permanent_key, introduction_point_list=None,
     permanent_id = util.calc_permanent_id(permanent_key)
 
     # Calculate the current secret-id-part for this hidden service
-    time_period = util.get_time_period(unix_timestamp, permanent_id)
+    # Deviation allows the generation of a descriptor for a different time
+    # period.
+    time_period = (util.get_time_period(unix_timestamp, permanent_id)
+                   + int(deviation))
+
     secret_id_part = util.calc_secret_id_part(time_period, None, replica)
     descriptor_id = util.calc_descriptor_id(permanent_id, secret_id_part)
 
-    # If we have no introduction
     if not introduction_point_list:
-        logger.warning("No introduction points for service '%s'. "
-                       "Skipping upload." % util.calc_onion_address(
-                           permanent_key))
-        return None
+        onion_address = util.calc_onion_address(permanent_key)
+        raise ValueError("No introduction points for service '%s'.",
+                         onion_address)
 
+    # Generate the introduction point section of the descriptor
     intro_section = make_introduction_points_part(
         introduction_point_list
     )
@@ -153,14 +153,14 @@ def sign_descriptor(descriptor, service_key):
     """
     Sign or resign a provided hidden service descriptor
     """
-    TOKEN_HSDESCRIPTOR_SIGNATURE = '\nsignature\n'
+    token_descriptor_signature = '\nsignature\n'
 
     # Remove signature block if it exists
-    if TOKEN_HSDESCRIPTOR_SIGNATURE in descriptor:
-        descriptor = descriptor[:descriptor.find(TOKEN_HSDESCRIPTOR_SIGNATURE)
-                                + len(TOKEN_HSDESCRIPTOR_SIGNATURE)]
+    if token_descriptor_signature in descriptor:
+        descriptor = descriptor[:descriptor.find(token_descriptor_signature)
+                                + len(token_descriptor_signature)]
     else:
-        descriptor = descriptor.strip() + TOKEN_HSDESCRIPTOR_SIGNATURE
+        descriptor = descriptor.strip() + token_descriptor_signature
 
     descriptor_digest = hashlib.sha1(descriptor.encode('utf-8')).digest()
     signature_with_headers = sign_digest(descriptor_digest, service_key)
@@ -169,24 +169,59 @@ def sign_descriptor(descriptor, service_key):
 
 def fetch_descriptor(controller, onion_address, hsdir=None):
     """
-    Try fetch a HS descriptor from any of the responsible HSDirs
-
-    .. todo:: Allow a custom HSDir to be specified
+    Try fetch a HS descriptor from any of the responsible HSDirs. Initiate
+    fetch from hsdir only if it is specified.
     """
-    logger.info("Sending HS descriptor fetch for %s.onion" % onion_address)
-    response = controller.msg("HSFETCH %s" % (onion_address))
-    (response_code, divider, response_content) = response.content()[0]
+
+    if hsdir:
+        server_arg = " SERVER={}".format(hsdir)
+    else:
+        server_arg = ""
+
+    logger.debug("Sending descriptor fetch for %s.onion.", onion_address)
+    response = controller.msg("HSFETCH %s%s" % (onion_address, server_arg))
+    (response_code, _, response_content) = response.content()[0]
     if not response.is_ok():
-        if response_code == "510":
-            logger.error("This version of Tor does not support HSFETCH "
-                         "command.")
-            sys.exit(1)
         if response_code == "552":
             raise stem.InvalidRequest(response_code, response_content)
         else:
             raise stem.ProtocolError("HSFETCH returned unexpected "
-                                     "response code: %s" % response_code)
-        pass
+                                     "response code: %s", response_code)
+
+
+def descriptor_received(descriptor_content):
+    """
+    Process onion service descriptors retrieved from the HSDir system or
+    received directly over the metadata channel.
+    """
+
+    try:
+        parsed_descriptor = stem.descriptor.hidden_service_descriptor.\
+            HiddenServiceDescriptor(descriptor_content, validate=True)
+    except ValueError:
+        logger.exception("Received an invalid service descriptor.")
+
+    # Ensure the received descriptor matches the requested descriptor
+    permanent_key = Crypto.PublicKey.RSA.importKey(
+        parsed_descriptor.permanent_key)
+    descriptor_onion_address = util.calc_onion_address(permanent_key)
+
+    # Find the HS instance for this descriptor
+    for service in config.services:
+        for instance in service.instances:
+            if instance.onion_address == descriptor_onion_address:
+                # Update the descriptor and exit
+                instance.update_descriptor(parsed_descriptor)
+                return None
+
+    # No matching service instance was found for the descriptor
+    logger.debug("Received a descriptor for an unknown service:\n%s",
+                 descriptor_content)
+    logger.warning("Received a descriptor with address %s.onion that "
+                   "did not match any configured service instances.",
+                   descriptor_onion_address)
+
+    return None
 
 
 def upload_descriptor(controller, signed_descriptor, hsdirs=None):
@@ -196,11 +231,12 @@ def upload_descriptor(controller, signed_descriptor, hsdirs=None):
     If no HSDir's are specified, Tor will upload to what it thinks are the
     responsible directories
     """
-    logger.debug("Sending HS descriptor upload")
+    logger.debug("Beginning service descriptor upload.")
 
     # Provide server fingerprints to control command if HSDirs are specified.
     if hsdirs:
-        server_args = ' '.join([("SERVER=%s" % hsdir) for hsdir in hsdirs])
+        server_args = ' '.join([("SERVER={}".format(hsdir))
+                                for hsdir in hsdirs])
     else:
         server_args = ""
 
@@ -213,4 +249,4 @@ def upload_descriptor(controller, signed_descriptor, hsdirs=None):
             raise stem.InvalidRequest(response_code, response_content)
         else:
             raise stem.ProtocolError("HSPOST returned unexpected response "
-                                     "code: %s" % response_code)
+                                     "code: %s", response_code)
