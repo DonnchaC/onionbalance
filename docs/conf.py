@@ -17,8 +17,10 @@ import sys
 import os
 import datetime
 
+import sphinx.environment
+from docutils.utils import get_source_line
+
 from onionbalance import __version__, __author__, __contact__
-import onionbalance
 
 # Ignore the 'dev' version suffix.
 if __version__.endswith('dev'):
@@ -31,6 +33,13 @@ if __version__.endswith('dev'):
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
+
+
+# Don't give warning for external images
+def _warn_node(self, msg, node):
+    if not msg.startswith('nonlocal image URI found:'):
+        self._warnfunc(msg, '%s:%s' % get_source_line(node))
+sphinx.environment.BuildEnvironment.warn_node = _warn_node
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '1.1'

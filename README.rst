@@ -6,15 +6,14 @@
 Overview
 --------
 
-The onion service load balancer allows an operator to distribute
-requests for their onion service to between 1 and 10 separate Tor
-instances. Each Tor instance can run completely independently with no
-knowledge of any other instances.
+The OnionBalance software allows the distribution of requests for an onion service to between 1 and 10 separate Tor instances. Each Tor instance can run
+independently with no knowledge of the other instances.
 
-The load balancer is the only system which needs to store the onion
-services's private key. As the load balancer handles no hidden service
-traffic it's risk of deanonymisation by traffic analysis attacks is
-reduced.
+* `Documentation <https://onionbalance.readthedocs.org>`_
+* `Code <https://github.com/DonnchaC/onionbalance/>`_
+* `Bug Tracker <https://github.com/DonnchaC/onionbalance/issues>`_
+
+|build-status| |docs|
 
 Installation
 ------------
@@ -90,3 +89,13 @@ Once your load balancing instances are running, you can start the management ser
 ::
 
     $ onionbalance -c config.yaml
+
+.. |build-status| image:: https://img.shields.io/travis/DonnchaC/onionbalance.svg?style=flat
+    :alt: build status
+    :scale: 100%
+    :target: https://travis-ci.org/DonnchaC/onionbalance
+
+.. |docs| image:: https://readthedocs.org/projects/onionbalance/badge/?version=latest
+    :alt: Documentation Status
+    :scale: 100%
+    :target: https://readthedocs.org/projects/onionbalance/?badge=latest
