@@ -81,7 +81,7 @@ system, it should before a number of checks to ensure that it is valid:
    included in the master descriptor.
 
 It should be possible for two or more independent management servers to
-publish descriptors for a single onion service. The servers woulds
+publish descriptors for a single onion service. The servers would
 publish independent descriptors which will replace each other on the
 HSDir system.. Any difference in introduction point selection between
 descriptors should not impact the end user.
