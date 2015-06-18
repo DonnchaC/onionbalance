@@ -98,4 +98,4 @@ Once your load balancing instances are running, you can start the management ser
 .. |docs| image:: https://readthedocs.org/projects/onionbalance/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%
-    :target: https://readthedocs.org/projects/onionbalance/?badge=latest
+    :target: https://onionbalance.readthedocs.org/en/latest/
