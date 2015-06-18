@@ -216,7 +216,7 @@ def descriptor_received(descriptor_content):
 
     # No matching service instance was found for the descriptor
     logger.debug("Received a descriptor for an unknown service:\n%s",
-                 descriptor_content)
+                 descriptor_content.decode('utf-8'))
     logger.warning("Received a descriptor with address %s.onion that "
                    "did not match any configured service instances.",
                    descriptor_onion_address)
@@ -240,7 +240,8 @@ def upload_descriptor(controller, signed_descriptor, hsdirs=None):
     else:
         server_args = ""
 
-    response = controller.msg("HSPOST%s\r\n%s\r\n.\r\n" %
+    # Stem will insert the leading + and trailing '\r\n.\r\n'
+    response = controller.msg("HSPOST%s\n%s" %
                               (server_args, signed_descriptor))
 
     (response_code, divider, response_content) = response.content()[0]
@@ -249,4 +250,5 @@ def upload_descriptor(controller, signed_descriptor, hsdirs=None):
             raise stem.InvalidRequest(response_code, response_content)
         else:
             raise stem.ProtocolError("HSPOST returned unexpected response "
-                                     "code: %s", response_code)
+                                     "code: %s\n%s", response_code,
+                                     response_content)

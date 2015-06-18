@@ -5,6 +5,7 @@ import time
 import base64
 
 import Crypto.PublicKey.RSA
+import stem
 
 from onionbalance import descriptor
 from onionbalance import util
@@ -171,10 +172,16 @@ class Service(object):
                 logger.warning("Error generating master descriptor: %s", exc)
             else:
                 # Signed descriptor was generated successfully, upload it
-                descriptor.upload_descriptor(self.controller,
-                                             signed_descriptor)
-                logger.info("Published a descriptor for service %s.onion "
-                            "under replica %d.", self.onion_address, replica)
+                try:
+                    descriptor.upload_descriptor(self.controller,
+                                                 signed_descriptor)
+                except stem.ControllerError:
+                    logger.exception("Error uploading descriptor for service "
+                                     "%s.onion.", self.onion_address)
+                else:
+                    logger.debug("Published a descriptor for service "
+                                 "%s.onion under replica %d.",
+                                 self.onion_address, replica)
 
         # It would be better to set last_uploaded when an upload succeeds and
         # not when an upload is just attempted. Unfortunately the HS_DESC #
@@ -193,15 +200,15 @@ class Service(object):
                 self._descriptor_not_uploaded_recently(),
                 force_publish]):
 
-            logger.debug("Publishing a descriptor for service %s.onion.",
-                         self.onion_address)
+            logger.info("Publishing a descriptor for service %s.onion.",
+                        self.onion_address)
             self._publish_descriptor()
 
             # If the descriptor ID will change soon, need to upload under
             # the new ID too.
             if self._descriptor_id_changing_soon():
-                logger.debug("Publishing a descriptor for service %s.onion "
-                             "under next descriptor ID.", self.onion_address)
+                logger.info("Publishing a descriptor for service %s.onion "
+                            "under next descriptor ID.", self.onion_address)
                 self._publish_descriptor(deviation=1)
 
         else:
