@@ -7,17 +7,15 @@ each instance.
 import sys
 import argparse
 import time
-import os
 import logging
 
 # import Crypto.PublicKey
 import stem
 from stem.control import Controller, EventType
-import yaml
 import schedule
 
 from onionbalance import log
-from onionbalance import util
+from onionbalance import settings
 from onionbalance import config
 from onionbalance import eventhandler
 
@@ -53,72 +51,12 @@ def parse_cmd_args():
     return parser.parse_args()
 
 
-def parse_config_file(config_file):
-    """
-    Parse config file contain load balancing node configuration
-    """
-    config_path = os.path.abspath(config_file)
-    if os.path.exists(config_path):
-        with open(config_file, 'r') as handle:
-            config_data = yaml.load(handle.read())
-            logger.info("Loaded the config file '%s'.", config_path)
-    else:
-        logger.error("The specified config file '%s' does not exist.",
-                     config_path)
-        sys.exit(1)
-
-    return config_data
-
-
-def initialize_services(controller, services_config):
-    """
-    Load keys for services listed in the config
-    """
-
-    # Load the keys and config for each onion service
-    for service in services_config:
-        service_key = util.key_decrypt_prompt(service.get("key"))
-        if not service_key:
-            logger.error("Private key %s could not be loaded.",
-                         service.get("key"))
-            sys.exit(0)
-        else:
-            # Successfully imported the private key
-            onion_address = util.calc_onion_address(service_key)
-            logger.debug("Loaded private key for service %s.onion.",
-                         onion_address)
-
-        # Load all instances for the current onion service
-        instance_config = service.get("instances", [])
-        if not instance_config:
-            logger.error("Could not load and instances for service "
-                         "%s.onion.", onion_address)
-            sys.exit(1)
-        else:
-            instances = []
-            for instance in instance_config:
-                instances.append(onionbalance.instance.Instance(
-                    controller=controller,
-                    onion_address=instance.get("address"),
-                    authentication_cookie=instance.get("auth")
-                ))
-
-            logger.info("Loaded %d instances for service %s.onion.",
-                        len(instances), onion_address)
-
-        config.services.append(onionbalance.service.Service(
-            controller=controller,
-            service_key=service_key,
-            instances=instances
-        ))
-
-
 def main():
     """
     Entry point when invoked over the command line.
     """
     args = parse_cmd_args()
-    config_file_options = parse_config_file(args.config)
+    config_file_options = settings.parse_config_file(args.config)
 
     # Update global configuration with options specified in the config file
     for setting in dir(config):
@@ -156,7 +94,8 @@ def main():
         sys.exit(1)
 
     # Load the keys and config for each onion service
-    initialize_services(controller, config_file_options.get('services'))
+    settings.initialize_services(controller,
+                                 config_file_options.get('services'))
 
     # Finished parsing all the config file.
 

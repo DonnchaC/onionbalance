@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+Define default config options for the management server
+"""
+
 # Set default configuration options for the management server
 
 REPLICAS = 2
