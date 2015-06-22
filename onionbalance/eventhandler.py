@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import stem
-
 from onionbalance import log
 from onionbalance import descriptor
 
@@ -14,14 +12,14 @@ class EventHandler(object):
     """
 
     @staticmethod
-    def _new_desc(desc_event):
+    def new_desc(desc_event):
         """
         Parse HS_DESC response events
         """
         logger.debug("Received new HS_DESC event: %s", str(desc_event))
 
     @staticmethod
-    def _new_desc_content(desc_content_event):
+    def new_desc_content(desc_content_event):
         """
         Parse HS_DESC_CONTENT response events for descriptor content
 
@@ -41,16 +39,3 @@ class EventHandler(object):
         descriptor.descriptor_received(descriptor_text)
 
         return None
-
-    def new_event(self, event):
-        """
-        Dispatches new Tor controller events to the appropriate handlers.
-        """
-        if isinstance(event, stem.response.events.HSDescEvent):
-            self._new_desc(event)
-
-        elif isinstance(event, stem.response.events.HSDescContentEvent):
-            self._new_desc_content(event)
-
-        else:
-            logger.warning("Received unexpected event %s.", str(event))

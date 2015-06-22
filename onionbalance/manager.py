@@ -161,8 +161,9 @@ def main():
     # Finished parsing all the config file.
 
     handler = eventhandler.EventHandler()
-    controller.add_event_listener(handler.new_event,
-                                  EventType.HS_DESC,
+    controller.add_event_listener(handler.new_desc,
+                                  EventType.HS_DESC)
+    controller.add_event_listener(handler.new_desc_content,
                                   EventType.HS_DESC_CONTENT)
 
     # Schedule descriptor fetch and upload events
