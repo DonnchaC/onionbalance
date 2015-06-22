@@ -128,7 +128,7 @@ class Service(object):
                 available_intro_points.append(instance.introduction_points)
 
         # Choose up to `MAX_INTRO_POINTS` IPs from the service instances.
-        num_instances = len(self.instances)
+        num_active_instances = len(available_intro_points)
         num_intro_points = sum(
             len(ips) for ips in available_intro_points
         )
@@ -136,9 +136,9 @@ class Service(object):
                                       config.MAX_INTRO_POINTS)
 
         # Choose intro points from a maximum number of instances
-        intro_selection = [0] * num_instances
+        intro_selection = [0] * num_active_instances
         for count in range(0, max_introduction_points):
-            intro_selection[count % num_instances] += 1
+            intro_selection[count % num_active_instances] += 1
         random.shuffle(intro_selection)
 
         choosen_intro_points = []
