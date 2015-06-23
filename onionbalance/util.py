@@ -94,26 +94,31 @@ def base32_encode_str(byte_str):
 
 def key_decrypt_prompt(key_file, retries=3):
     """
-    Try open an PEM encrypted private key, propmpting the user for a
+    Try open an PEM encrypted private key, prompting the user for a
     passphrase if required.
     """
 
-    for retries in range(0, retries):
-        key_passphrase = None
-        with open(key_file, 'r') as handle:
-            pem_key = handle.read()
+    key_passphrase = None
+    with open(key_file, 'r') as handle:
+        pem_key = handle.read()
 
+        for retries in range(0, retries):
             if "Proc-Type: 4,ENCRYPTED" in pem_key:  # Key looks encrypted
                 key_passphrase = getpass.getpass(
                     "Enter the password for the private key (%s): " % key_file)
             try:
-                permanent_key = Crypto.PublicKey.RSA.importKey(
+                rsa_key = Crypto.PublicKey.RSA.importKey(
                     pem_key, passphrase=key_passphrase)
             except ValueError:
                 # Key not decrypted correctly, prompt for passphrase again
                 continue
             else:
-                return permanent_key
+                # .. todo:: Check the loaded key size in a more reasonable way.
+                if rsa_key.has_private() and rsa_key.size() == (1023 or 1024):
+                    return rsa_key
+                else:
+                    raise ValueError("The specified key was not a 1024 bit "
+                                     "private key.")
 
     # No private key was imported
     raise ValueError("Could not import RSA key.")
