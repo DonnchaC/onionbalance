@@ -38,7 +38,7 @@ def generate_service_descriptor(permanent_key, introduction_point_list=None,
 
     if not introduction_point_list:
         onion_address = util.calc_onion_address(permanent_key)
-        raise ValueError("No introduction points for service '%s'.",
+        raise ValueError("No introduction points for service %s.onion." %
                          onion_address)
 
     # Generate the introduction point section of the descriptor
@@ -187,7 +187,7 @@ def fetch_descriptor(controller, onion_address, hsdir=None):
             raise stem.InvalidRequest(response_code, response_content)
         else:
             raise stem.ProtocolError("HSFETCH returned unexpected "
-                                     "response code: %s", response_code)
+                                     "response code: %s" % response_code)
 
 
 def descriptor_received(descriptor_content):
@@ -251,5 +251,5 @@ def upload_descriptor(controller, signed_descriptor, hsdirs=None):
             raise stem.InvalidRequest(response_code, response_content)
         else:
             raise stem.ProtocolError("HSPOST returned unexpected response "
-                                     "code: %s\n%s", response_code,
-                                     response_content)
+                                     "code: %s\n%s" % (response_code,
+                                                       response_content))

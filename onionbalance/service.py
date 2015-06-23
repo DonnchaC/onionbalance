@@ -179,9 +179,9 @@ class Service(object):
                     logger.exception("Error uploading descriptor for service "
                                      "%s.onion.", self.onion_address)
                 else:
-                    logger.debug("Published a descriptor for service "
-                                 "%s.onion under replica %d.",
-                                 self.onion_address, replica)
+                    logger.info("Published a descriptor for service "
+                                "%s.onion under replica %d.",
+                                self.onion_address, replica)
 
         # It would be better to set last_uploaded when an upload succeeds and
         # not when an upload is just attempted. Unfortunately the HS_DESC #
@@ -200,8 +200,8 @@ class Service(object):
                 self._descriptor_not_uploaded_recently(),
                 force_publish]):
 
-            logger.info("Publishing a descriptor for service %s.onion.",
-                        self.onion_address)
+            logger.debug("Publishing a descriptor for service %s.onion.",
+                         self.onion_address)
             self._publish_descriptor()
 
             # If the descriptor ID will change soon, need to upload under
