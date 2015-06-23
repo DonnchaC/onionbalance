@@ -43,5 +43,6 @@ setup(
         'PyYAML>=3.11',
         'pycrypto>=2.6.1',
         'schedule>=0.3.1',
+        'future>=0.14.0',
         ]
 )
