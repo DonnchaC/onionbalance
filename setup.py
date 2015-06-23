@@ -25,8 +25,10 @@ setup(
     name = "OnionBalance",
     packages = ["onionbalance"],
     entry_points = {
-        "console_scripts": ['onionbalance = onionbalance.manager:main']
-        },
+        "console_scripts": [
+            'onionbalance = onionbalance.manager:main',
+            'onionbalance-config = onionbalance.settings:generate_config',
+        ]},
     description = "Tool for distributing Tor onion services connections to "
                   "multiple backend Tor instances",
     long_description = read('README.rst'),
