@@ -5,6 +5,7 @@ import datetime
 import getpass
 import base64
 import binascii
+import os
 
 # import Crypto.Util
 import Crypto.PublicKey
@@ -116,3 +117,25 @@ def key_decrypt_prompt(key_file, retries=3):
 
     # No private key was imported
     raise ValueError("Could not import RSA key.")
+
+
+def try_make_dir(path):
+    """
+    Try to create a directory (including any parent directories)
+    """
+    try:
+        os.makedirs(path)
+    except OSError:
+        if not os.path.isdir(path):
+            raise
+
+
+def is_directory_empty(path):
+    """
+    Check if a directory contains any files or directories.
+    """
+    for dirpath, dirnames, files in os.walk(path):
+        if files or dirnames:
+            return False
+        else:
+            return True

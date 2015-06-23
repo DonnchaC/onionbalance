@@ -6,8 +6,13 @@ Implements the generation and loading of configuration files.
 
 import os
 import sys
+import argparse
+import getpass
+import logging
+from builtins import input, range
 
 import yaml
+import Crypto.PublicKey
 
 from onionbalance import config
 from onionbalance import util
@@ -47,7 +52,7 @@ def initialize_services(controller, services_config):
         if not service_key:
             logger.error("Private key %s could not be loaded.",
                          service.get("key"))
-            sys.exit(0)
+            sys.exit(1)
         else:
             # Successfully imported the private key
             onion_address = util.calc_onion_address(service_key)
@@ -80,9 +85,226 @@ def initialize_services(controller, services_config):
         ))
 
 
+def parse_cmd_args():
+    """
+    Parses and returns command line arguments for config generator
+    """
+
+    parser = argparse.ArgumentParser(
+        description="%s generates config files and keys for OnionBalance "
+        "instances and managment servers. Calling without any options will"
+        "initiate an interactive mode." % sys.argv[0])
+
+    parser.add_argument("--key", type=str, default=None,
+                        help="RSA private key for the master onion service.")
+
+    parser.add_argument("-p", "--password", type=str, default=None,
+                        help="Optional password which can be used to encrypt"
+                        "the master service private key.")
+
+    parser.add_argument("-n", type=int, default=2, dest="num_instances",
+                        help="Number of instances to generate (default: "
+                        "%(default)s).")
+
+    parser.add_argument("-t", "--tag", type=str, default='srv',
+                        help="Prefix name for the service instances "
+                        "(default: %(default)s).")
+
+    parser.add_argument("--output", type=str, default='config/',
+                        help="Directory to store generate config files. "
+                        "The directory will be created if it does not "
+                        "already exist.")
+
+    parser.add_argument("--no-interactive", action='store_true',
+                        help="Try to run automatically without prompting for"
+                        "user input.")
+
+    parser.add_argument("-v", type=str, default="info", dest='verbosity',
+                        help="Minimum verbosity level for logging. Available "
+                        "in ascending order: debug, info, warning, error, "
+                        "critical).  The default is info.")
+
+    parser.add_argument("--service-port-line", type=str,
+                        default="HiddenServicePort 80 127.0.0.1:80",
+                        help="Port line for each instance's torrc file "
+                        "(default: %(default)s).")
+
+    # .. todo:: Add option to specify HS host and port for instance torrc
+
+    return parser.parse_args()
+
+
 def generate_config():
     """
     Entry point for interactive config file generation.
     """
-    return None
-    logger.info("Config generation")
+
+    logger.info("Beginning OnionBalance config generation.")
+
+    # Parse initial command line options
+    args = parse_cmd_args()
+
+    # If CLI options have been provided, don't enter interactive mode
+    # Crude check to see if any options beside --verbosity are set.
+    verbose = True if '-v' in sys.argv else False
+
+    if ((len(sys.argv) > 1 and not verbose) or len(sys.argv) > 3 or
+            args.no_interactive):
+        interactive = False
+        logger.info("Entering non-interactive mode.")
+    else:
+        interactive = True
+        logger.info("No command line arguments found, entering interactive "
+                    "mode.")
+
+    logger.setLevel(logging.__dict__[args.verbosity.upper()])
+
+    # Check if output directory exists, if not try create it
+    output_path = None
+    if interactive:
+        output_path = input("Enter path to store generated config "
+                            "[{}]: ".format(os.path.abspath(args.output)))
+    output_path = output_path or args.output
+    try:
+        util.try_make_dir(output_path)
+    except OSError:
+        logger.exception("Problem encountered when trying to create the "
+                         "output directory %s.", os.path.abspath(output_path))
+    else:
+        logger.debug("Created the output directory '%s'.",
+                     os.path.abspath(output_path))
+
+    # The output directory should be empty to avoid having conflict keys
+    # or config files.
+    if not util.is_directory_empty(output_path):
+        logger.error("The specified output directory is not empty. Please "
+                     "delete any files and folders or specify another output "
+                     "directory.")
+        sys.exit(1)
+
+    # Load master key if specified
+    key_path = None
+    if interactive:
+        # Read key path from user
+        key_path = input("Enter path to master service private key "
+                         "(Leave empty to generate a key): ")
+    key_path = args.key or key_path
+    if key_path:
+        if not os.path.isfile(key_path):
+            logger.error("The specified master service private key '%s' "
+                         "could not be found. Please confirm the path and "
+                         "file permissions are correct.", key_path)
+            sys.exit(1)
+        else:
+            # Try load the specified private key file
+            master_key = util.key_decrypt_prompt(key_path)
+            if not master_key:
+                logger.error("The specified master private key %s could not "
+                             "be loaded.", os.path.abspath(master_key))
+                sys.exit(1)
+            else:
+                master_onion_address = util.calc_onion_address(master_key)
+                logger.info("Successfully loaded a master key for service "
+                            "%s.onion.", master_onion_address)
+
+    else:
+        # No key specified, begin generating a new one.
+        master_key = Crypto.PublicKey.RSA.generate(1024)
+        master_onion_address = util.calc_onion_address(master_key)
+        logger.debug("Created a new master key for service %s.onion.",
+                     master_onion_address)
+
+    # Finished loading/generating master key, now try generate keys for
+    # each service instance
+    num_instances = None
+    if interactive:
+        num_instances = input("Number of instance services to create "
+                              "[{}]: ".format(args.num_instances))
+        # Cast to int if a number was specified
+        try:
+            num_instances = int(num_instances)
+        except ValueError:
+            num_instances = None
+    num_instances = num_instances or args.num_instances
+    logger.debug("Creating %d service instances.", num_instances)
+
+    tag = None
+    if interactive:
+        tag = input("Provide a tag name to group these instances "
+                    "[{}]: ".format(args.tag))
+    tag = tag or args.tag
+
+    torrc_port_line = None
+    if interactive:
+        torrc_port_line = input("Specify a HiddenServicePort option for each "
+                                "instance's torrc file [{}]: ".format(
+                                    args.service_port_line))
+    torrc_port_line = torrc_port_line or args.service_port_line
+
+    instances = []
+    for i in range(0, num_instances):
+        instance_key = Crypto.PublicKey.RSA.generate(1024)
+        instance_address = util.calc_onion_address(instance_key)
+        logger.debug("Created a key for instance %s.onion.",
+                     instance_address)
+        instances.append((instance_address, instance_key))
+
+    # Write master service key to directory
+    master_passphrase = None
+    if interactive:
+        master_passphrase = getpass.getpass(
+            "Provide an optional password to encrypt the master private "
+            "key (Not encrypted if no password is specified): ")
+    master_passphrase = master_passphrase or args.password
+
+    master_dir = os.path.join(output_path, 'master')
+    util.try_make_dir(master_dir)
+    master_key_file = os.path.join(master_dir,
+                                   '{}.key'.format(master_onion_address))
+    with open(master_key_file, "wb") as key_file:
+        key_file.write(master_key.exportKey(passphrase=master_passphrase))
+        logger.debug("Successfully wrote master key to file %s.",
+                     os.path.abspath(master_key_file))
+
+    # Create YAML OnionBalance settings file for these instances
+    service_data = {'key': '{}.key'.format(master_onion_address)}
+    service_data['instances'] = [{'address': address,
+                                  'name': '{}{}'.format(tag, i+1)} for
+                                 i, (address, _) in enumerate(instances)]
+    settings_data = {'services': [service_data]}
+    config_yaml = yaml.dump(settings_data, default_flow_style=False)
+
+    config_file_path = os.path.join(master_dir, 'config.yaml')
+    with open(config_file_path, "w") as config_file:
+        config_file.write(u"# OnionBalance Config File\n")
+        config_file.write(config_yaml)
+        logger.info("Wrote master service config file '%s'.",
+                    os.path.abspath(config_file_path))
+
+    # Try generate config files for each service instance
+    for i, (instance_address, instance_key) in enumerate(instances):
+        # Create a numbered directory for instance
+        instance_dir = os.path.join(output_path, '{}{}'.format(tag, i+1))
+        util.try_make_dir(os.path.join(instance_dir,
+                                       '{}'.format(instance_address)))
+        instance_key_file = os.path.join(instance_dir,
+                                         '{}'.format(instance_address),
+                                         'private_key')
+        with open(instance_key_file, "wb") as key_file:
+            key_file.write(instance_key.exportKey())
+            logger.debug("Successfully wrote key for instance %s.onion to "
+                         "file.", instance_address)
+
+        # Write torrc file for each instance
+        instance_torrc = os.path.join(instance_dir, 'instance_torrc')
+        with open(instance_torrc, "w") as torrc_file:
+            torrc_file.write("SocksPort 0\n")
+            torrc_file.write("HiddenServiceDir {}\n".format(instance_address))
+            torrc_file.write("{}\n".format(torrc_port_line))
+
+    # Output final status message
+    logger.info("Done! Successfully generated an OnionBalance config and %d "
+                "instance keys for service %s.onion.",
+                num_instances, master_onion_address)
+
+    sys.exit(0)
