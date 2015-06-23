@@ -3,13 +3,12 @@
 """
 Implements the generation and loading of configuration files.
 """
-
+from builtins import input, range
 import os
 import sys
 import argparse
 import getpass
 import logging
-from builtins import input, range
 
 import yaml
 import Crypto.PublicKey
