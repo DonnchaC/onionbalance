@@ -1,4 +1,4 @@
-stem>=1.4.1
+stem>=1.4.0-dev
 PyYAML>=3.11
 pycrypto>=2.6.1
 schedule>=0.3.1
