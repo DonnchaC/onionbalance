@@ -64,17 +64,18 @@ def generate_hs_descriptor_raw(desc_id_base32, permanent_key_block,
     """
     Generate hidden service descriptor string
     """
-    doc = []
-    doc.append("rendezvous-service-descriptor {}".format(desc_id_base32))
-    doc.append("version 2")
-    doc.append("permanent-key")
-    doc.append(permanent_key_block)
-    doc.append("secret-id-part {}".format(secret_id_part_base32))
-    doc.append("publication-time {}".format(publication_time))
-    doc.append("protocol-versions 2,3")
-    doc.append("introduction-points")
-    doc.append(introduction_points_part)
-    doc.append("signature\n")
+    doc = [
+        "rendezvous-service-descriptor {}".format(desc_id_base32),
+        "version 2",
+        "permanent-key",
+        permanent_key_block,
+        "secret-id-part {}".format(secret_id_part_base32),
+        "publication-time {}".format(publication_time),
+        "protocol-versions 2,3",
+        "introduction-points",
+        introduction_points_part,
+        "signature\n",
+    ]
 
     unsigned_descriptor = '\n'.join(doc)
     return unsigned_descriptor

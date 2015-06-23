@@ -4,7 +4,6 @@ import time
 
 import stem.control
 
-from onionbalance import descriptor
 from onionbalance import log
 from onionbalance import config
 
@@ -62,7 +61,14 @@ class Instance(object):
         """
         logger.debug("Trying to fetch a descriptor for instance %s.onion.",
                      self.onion_address)
-        return descriptor.fetch_descriptor(self.controller, self.onion_address)
+        try:
+            self.controller.get_hidden_service_descriptor(self.onion_address,
+                                                          await_result=True)
+        except stem.DescriptorUnavailable:
+            # Could not find the descriptor on the HSDir
+            self.received = None
+            logger.warning("No descriptor received for instance %s.onion, "
+                           "the instance may be offline.", self.onion_address)
 
     def update_descriptor(self, parsed_descriptor):
         """
