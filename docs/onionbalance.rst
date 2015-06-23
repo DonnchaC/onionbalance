@@ -13,6 +13,7 @@ Submodules
    onionbalance.log
    onionbalance.manager
    onionbalance.service
+   onionbalance.settings
    onionbalance.util
 
 Module contents
