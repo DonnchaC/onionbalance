@@ -261,6 +261,7 @@ def generate_config():
     master_key_file = os.path.join(master_dir,
                                    '{}.key'.format(master_onion_address))
     with open(master_key_file, "wb") as key_file:
+        os.chmod(master_key_file, 384)  # chmod 0600 in decimal
         key_file.write(master_key.exportKey(passphrase=master_passphrase))
         logger.debug("Successfully wrote master key to file %s.",
                      os.path.abspath(master_key_file))
@@ -284,12 +285,16 @@ def generate_config():
     for i, (instance_address, instance_key) in enumerate(instances):
         # Create a numbered directory for instance
         instance_dir = os.path.join(output_path, '{}{}'.format(tag, i+1))
-        util.try_make_dir(os.path.join(instance_dir,
-                                       '{}'.format(instance_address)))
+        instance_key_dir = os.path.join(instance_dir,
+                                        '{}'.format(instance_address))
+        util.try_make_dir(instance_key_dir)
+        os.chmod(instance_key_dir, 1472)  # chmod 2700 in decimal
+
         instance_key_file = os.path.join(instance_dir,
                                          '{}'.format(instance_address),
                                          'private_key')
         with open(instance_key_file, "wb") as key_file:
+            os.chmod(instance_key_file, 384)  # chmod 0600 in decimal
             key_file.write(instance_key.exportKey())
             logger.debug("Successfully wrote key for instance %s.onion to "
                          "file.", instance_address)
