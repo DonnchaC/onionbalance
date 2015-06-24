@@ -1,4 +1,8 @@
 language: python
+before_install:
+  - ./test/scripts/install-tor.sh
+  - export PATH=$PATH:$PWD/tor/src/tools:$PWD/tor/src/or
+  - source test/scripts/install-chutney.sh
 install:
   - pip install tox
 script:
