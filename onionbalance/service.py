@@ -102,8 +102,8 @@ class Service(object):
         # Loop through each instance and determine fresh intro points
         for instance in self.instances:
             if not instance.received:
-                logger.debug("No descriptor received for instance %s.onion "
-                             "yet.", instance.onion_address)
+                logger.info("No descriptor received for instance %s.onion "
+                            "yet.", instance.onion_address)
                 continue
 
             # The instance may be offline if no descriptor has been received
@@ -124,22 +124,31 @@ class Service(object):
             else:
                 # Include this instance's introduction points
                 instance.changed_since_published = False
-                random.shuffle(instance.introduction_points)
                 available_intro_points.append(instance.introduction_points)
 
-        # Choose up to `MAX_INTRO_POINTS` IPs from the service instances.
+        # Shuffle the instance order before beginning to pick intro points
+        random.shuffle(available_intro_points)
+
         num_active_instances = len(available_intro_points)
-        num_intro_points = sum(
-            len(ips) for ips in available_intro_points
-        )
+        ips_per_instance = [len(ips) for ips in available_intro_points]
+        num_intro_points = sum(ips_per_instance)
+
+        # Choose up to `MAX_INTRO_POINTS` IPs from the service instances.
         max_introduction_points = min(num_intro_points,
                                       config.MAX_INTRO_POINTS)
 
-        # Choose intro points from a maximum number of instances
+        # Determine the maximum number of IP's which can be selected from
+        # each instance to give the widest distribution of introduction
+        # point
+        pos = 0
         intro_selection = [0] * num_active_instances
-        for count in range(0, max_introduction_points):
-            intro_selection[count % num_active_instances] += 1
-        random.shuffle(intro_selection)
+        # Keep looping until we have selected enough introduction points
+        while sum(intro_selection) < max_introduction_points:
+            # Check if any more IPs are available from the current instance
+            if(ips_per_instance[pos] - intro_selection[pos] > 0):
+                intro_selection[pos] += 1
+            # Increment and wrap the pointer to the current instance
+            pos = ((pos + 1) % num_active_instances)
 
         choosen_intro_points = []
         for count, intros in zip(intro_selection, available_intro_points):
