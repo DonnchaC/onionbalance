@@ -99,7 +99,7 @@ def key_decrypt_prompt(key_file, retries=3):
     """
 
     key_passphrase = None
-    with open(key_file, 'r') as handle:
+    with open(key_file, 'rb') as handle:
         pem_key = handle.read()
 
         for retries in range(0, retries):
@@ -139,8 +139,7 @@ def is_directory_empty(path):
     """
     Check if a directory contains any files or directories.
     """
-    for dirpath, dirnames, files in os.walk(path):
-        if files or dirnames:
-            return False
-        else:
-            return True
+    if os.listdir(path):
+        return False
+    else:
+        return True

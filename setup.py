@@ -44,5 +44,6 @@ setup(
         'pycrypto>=2.6.1',
         'schedule>=0.3.1',
         'future>=0.14.0',
-        ]
+        ],
+    tests_require=['tox', 'pytest', 'mock', 'pytest-mock'],
 )
