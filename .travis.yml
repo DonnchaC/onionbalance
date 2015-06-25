@@ -1,14 +1,15 @@
 language: python
+env:
+  - TOXENV=py27 TEST=functional
+  - TOXENV=py34 TEST=functional
+  - TOXENV=style
+  - TOXENV=docs
 before_install:
-  - ./test/scripts/install-tor.sh
-  - export PATH=$PATH:$PWD/tor/src/tools:$PWD/tor/src/or
-  - source test/scripts/install-chutney.sh
+  # Install tor and chutney if doing functional tests
+  - "if [[ $TEST == 'functional' ]]; then ./test/scripts/install-tor.sh; fi"
+  - "if [[ $TEST == 'functional' ]]; then export PATH=$PATH:$PWD/tor/src/tools:$PWD/tor/src/or; fi"
+  - "if [[ $TEST == 'functional' ]]; then source test/scripts/install-chutney.sh; fi"
 install:
   - pip install tox
 script:
   - tox
-env:
-  - TOXENV=style
-  - TOXENV=py27
-  - TOXENV=py34
-  - TOXENV=docs
