@@ -3,6 +3,8 @@
 # service system to be available.
 git clone https://github.com/DonnchaC/chutney.git
 cd chutney
+# Stop chutney network if it is already running
+./chutney stop networks/hs
 ./chutney configure networks/hs
 ./chutney start networks/hs
 ./chutney status networks/hs

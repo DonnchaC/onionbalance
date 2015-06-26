@@ -99,7 +99,7 @@ def key_decrypt_prompt(key_file, retries=3):
     """
 
     key_passphrase = None
-    with open(key_file, 'rb') as handle:
+    with open(key_file, 'rt') as handle:
         pem_key = handle.read()
 
         for retries in range(0, retries):
