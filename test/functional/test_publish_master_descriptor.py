@@ -112,9 +112,10 @@ def test_master_descriptor_publication(tmpdir):
     server.expect(u"Published a descriptor", timeout=120)
 
     # Check Tor control port gave an uploaded event.
+
     server.expect(u"HS_DESC UPLOADED")
     # Eek, sleep to wait for descriptor upload to all replicas to finish
-    time.sleep(5)
+    time.sleep(10)
 
     # .. todo:: Also need to check and raise for any warnings or errors
     #           that are emitted
