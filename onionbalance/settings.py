@@ -6,6 +6,7 @@ Implements the generation and loading of configuration files.
 from builtins import input, range
 import os
 import sys
+import errno
 import argparse
 import getpass
 import logging
@@ -37,6 +38,13 @@ def parse_config_file(config_file):
                      config_path)
         sys.exit(1)
 
+    # Rewrite relative paths in the config to be relative to the config
+    # file directory
+    config_directory = os.path.dirname(config_path)
+    for service in config_data.get('services'):
+        if not os.path.isabs(service.get('key')):
+            service['key'] = os.path.join(config_directory, service['key'])
+
     return config_data
 
 
@@ -47,9 +55,21 @@ def initialize_services(controller, services_config):
 
     # Load the keys and config for each onion service
     for service in services_config:
-        service_key = util.key_decrypt_prompt(service.get("key"))
+        try:
+            service_key = util.key_decrypt_prompt(service.get("key"))
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                logger.error("Private key file %s could not be found. "
+                             "Relative paths in the config file are loaded "
+                             "relative to the config file directory.",
+                             service.get("key"))
+                sys.exit(1)
+            else:
+                raise
+        # Key file was read but a valid private key was not found.
         if not service_key:
-            logger.error("Private key %s could not be loaded.",
+            logger.error("Private key %s could not be loaded. It is a not "
+                         "valid 1024 bit PEM encoded RSA private key",
                          service.get("key"))
             sys.exit(1)
         else:
