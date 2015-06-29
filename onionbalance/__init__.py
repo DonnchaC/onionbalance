@@ -3,5 +3,5 @@
 __version__ = "0.1.0.dev"
 __author__ = "Donncha O'Cearbhaill"
 __contact__ = "donncha@donncha.is"
-__url__ = "https://github.com/DonnchaC/"
+__url__ = "https://github.com/DonnchaC/onionbalance"
 __license__ = "GPL"

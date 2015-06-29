@@ -29,8 +29,9 @@ setup(
             'onionbalance = onionbalance.manager:main',
             'onionbalance-config = onionbalance.settings:generate_config',
         ]},
-    description="Tool for distributing Tor onion services connections to "
-                "multiple backend Tor instances.",
+    description="OnionBalance provides load-balancing and redundancy for Tor "
+                "hidden services by distributing requests to multiple backend "
+                "Tor instances.",
     long_description=read('README.rst'),
     version=module_info.get('__version__'),
     author=module_info.get('__author__'),
@@ -48,4 +49,12 @@ setup(
     tests_require=['tox', 'pytest', 'mock', 'pytest-mock', 'pexpect'],
     package_data={'onionbalance': ['data/*']},
     include_package_data=True,
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+    ]
 )

@@ -1,3 +1,5 @@
 include README.rst
 include COPYING
 include requirements.txt
+recursive-include docs *.rst
+recursive-include onionbalance/data *
