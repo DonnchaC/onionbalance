@@ -1,5 +1,5 @@
-stem>=1.4.0-dev
-PyYAML>=3.11
-pycrypto>=2.6.1
-schedule>=0.3.1
-future>=0.14.0
+stem==1.4.1b
+PyYAML==3.11
+pycrypto==2.6.1
+schedule==0.3.1
+future==0.14.3
