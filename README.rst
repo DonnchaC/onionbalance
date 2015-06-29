@@ -14,13 +14,6 @@ Getting Started
 
 OnionBalance requires a system which runs the OnionBalance management server and up to 10 backend servers which run onion services that serve the desired content (web site, IRC server etc.).
 
-Requirements
-~~~~~~~~~~~~
-
-The system running the OnionBalance management server requires Python and a recent version of Tor (>= 0.2.7.1-alpha).
-
-Each backend instance only requires a standard version of Tor.
-
 Installing OnionBalance
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -48,7 +41,7 @@ The bundled ``onionbalance-config`` tool is the fastest way to generate the nece
 
     $ onionbalance-config
 
-The config generator runs in an interactive mode when called without any arguments. The master directory should be stored on on the management server while the other instance directories should be transferred to the respective backend servers.
+The config generator runs in an interactive mode when called without any arguments. The ``master`` directory should be stored on on the management server while the other instance directories should be transferred to the respective backend servers.
 
 
 Configuring Tor on the management server
@@ -79,12 +72,12 @@ If you have used the ``onionbalance-config`` tool you should transfer the genera
 
     $ tor -f instance_torrc
 
-Configuration
--------------
+OnionBalance config file
+------------------------
 
 The OnionBalance management server must have access to the private key for the master onion service. This master private key determines the address that users will use to access your onion service. This private key must be kept secure.
 
-The location of the private key must be specified as relative or absolute path under ``key``. Each backend Tor onion service instance is listed by it's unique onion address in the `instances` list.
+The location of the private key must be specified as relative or absolute path under ``key`` in the config file. Each backend Tor onion service instance is listed by it's unique onion address in the ``instances`` list.
 
 An example config file is provided in `config.example.yaml <onionbalance/data/config.example.yaml>`_. If you have used the ``onionbalance-config`` tool you can simply use the generated config file at ``master/config.yaml``.
 
