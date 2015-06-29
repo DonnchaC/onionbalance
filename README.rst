@@ -17,7 +17,7 @@ OnionBalance requires a system which runs the OnionBalance management server and
 Requirements
 ~~~~~~~~~~~~
 
-The system running the OnionBalance management server requires a recent version of Tor (*>= 0.2.7.1-alpha*) and a Python interpreter.
+The system running the OnionBalance management server requires Python and a recent version of Tor (>= 0.2.7.1-alpha).
 
 Each backend instance only requires a standard version of Tor.
 
@@ -42,38 +42,38 @@ The management server does not need to be installed on the same systems that hos
 Configuring the OnionBalance management server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The bundled ``onionbalance-config`` tool is the fastest way of generating the necessary keys and config files to get your onion service up and running.
+The bundled ``onionbalance-config`` tool is the fastest way to generate the necessary keys and config files to get your onion service up and running.
 
 ::
 
     $ onionbalance-config
 
-The config generator runs in an interactive mode when called without any arguments. The master directory should be stored on on the management server while the other instance directories should be transferred the backend servers.
+The config generator runs in an interactive mode when called without any arguments. The master directory should be stored on on the management server while the other instance directories should be transferred to the respective backend servers.
 
 
 Configuring Tor on the management server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-OnionBalance requires that a recent version of Tor (*>= 0.2.7.1-alpha*) is available on the management server system. This versions of Tor is not yet available from the Tor repositories yet and must be compiled from source.
+OnionBalance requires that a recent version of Tor (>= 0.2.7.1-alpha) is installed on the management server system. This versions of Tor is not yet available from the Tor repositories yet and must be compiled from source.
 
 ::
 
-    wget https://www.torproject.org/dist/tor-0.2.7.1-alpha.tar.gz
-    tar -xzvf tor-0.2.7.1-alpha.tar.gz && cd tor-0.2.7.1-alpha
-    ./configure --disable-asciidoc && sudo make install
+    $ wget https://www.torproject.org/dist/tor-0.2.7.1-alpha.tar.gz
+    $ tar -xzvf tor-0.2.7.1-alpha.tar.gz && cd tor-0.2.7.1-alpha
+    $ ./configure --disable-asciidoc && sudo make install
 
-The ``onionbalance/data/torrc-server`` contains a Tor config file which is suitable for the management server. The ``onionbalance-config`` tool also outputs a suitable Tor config file as ``master/torrc-server``.
+The Tor config file at ``onionbalance/data/torrc-server`` can be used for the management server. The ``onionbalance-config`` tool also outputs a suitable Tor config file as ``master/torrc-server``.
 
 ::
 
     $ tor -f torrc-server
 
-Configuring the backend Onion Service instances
+Configuring the backend onion service instances
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each backend instance should be run a standard onion service which serves your website or other content. More information about configuring onion services is available in the Tor Project's `hidden service configuration guide <https://www.torproject.org/docs/tor-hidden-service.html.en>`_.
 
-If you have used the `onionbalance-config` tool you should be able to start your backend instances by running:
+If you have used the ``onionbalance-config`` tool you should transfer the generated instance config files and keys to the respective backend servers. You can then start the onion service instance by simply running:
 
 ::
 
@@ -82,12 +82,11 @@ If you have used the `onionbalance-config` tool you should be able to start your
 Configuration
 -------------
 
-The OnionBalance manager must have access to the private key for the master onion service. The address corresponding to this private key is the address that users will use to access your service. This private key must be kept secure.
+The OnionBalance management server must have access to the private key for the master onion service. This master private key determines the address that users will use to access your onion service. This private key must be kept secure.
 
 The location of the private key must be specified as relative or absolute path under ``key``. Each backend Tor onion service instance is listed by it's unique onion address in the `instances` list.
 
-An example config file is provided in config.yaml.example. If you have used the
-``onionbalance-config`` tool you can simply use the generated config file at ``master/config.yaml``.
+An example config file is provided in `config.example.yaml <onionbalance/data/config.example.yaml>`_. If you have used the ``onionbalance-config`` tool you can simply use the generated config file at ``master/config.yaml``.
 
 Running
 -------
@@ -105,7 +104,7 @@ Contact
 
 This software is under active development and likely contains many bugs. Please open bugs on Github if you discover any issues with the software or documentation.
 
-I can also be contacted by PGP email or on IRC at `#onionbalance` on the OFTC network.
+I can also be contacted by PGP email or on IRC at ``#onionbalance`` on the OFTC network.
 
 ::
 
