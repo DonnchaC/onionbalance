@@ -159,6 +159,9 @@ def generate_config():
     Entry point for interactive config file generation.
     """
 
+    # Simplify the logging output for the command line tool
+    logger = log.get_config_generator_logger()
+
     logger.info("Beginning OnionBalance config generation.")
 
     # Parse initial command line options

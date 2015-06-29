@@ -1,4 +1,4 @@
-# Tor config for the managment server
+# Tor config for the management server
 # ---
 # The management server must be able to access the Tor control port.
 # Alternatively the control port can be enabled on the system Tor process.
