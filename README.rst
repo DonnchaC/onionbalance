@@ -1,13 +1,7 @@
-.. WARNING ::
-    THIS IS VERY EXPERIMENTAL, ROUGH CODE. THIS IS NOT READY TO BE
-    USED FOR PRODUCTION. IT MAY CONTAIN CRITICAL SECURITY OR PERFORMANCE
-    BUGS.
+Introduction
+------------
 
-Overview
---------
-
-The OnionBalance software allows the distribution of requests for an onion service to between 1 and 10 separate Tor instances. Each Tor instance can run
-independently with no knowledge of the other instances.
+The OnionBalance software allows for Tor hidden service requests to be distributed across multiple backend Tor instances. OnionBalance provides load-balancing while also making onion services more resilient and reliable by eliminating single points-of-failure.
 
 * `Documentation <https://onionbalance.readthedocs.org>`_
 * `Code <https://github.com/DonnchaC/onionbalance/>`_
@@ -15,80 +9,112 @@ independently with no knowledge of the other instances.
 
 |build-status| |docs|
 
-Installation
-------------
+Getting Started
+---------------
 
-Onion Service Instances
-~~~~~~~~~~~~~~~~~~~~~~~~
+OnionBalance requires a system which runs the OnionBalance management server and up to 10 backend servers which run onion services that serve the desired content (web site, IRC server etc.).
 
-Each load-balancing instance is an onion service configured with a
-unique private key. To minimize the disclosure of information about your
-onion service configuration it is advisable to configure some form of
-onion service authentication.
+Requirements
+~~~~~~~~~~~~
 
-The individual load balancing instances use a standard Tor client.
+The system running the OnionBalance management server requires a recent version of Tor (*>= 0.2.7.1-alpha*) and a Python interpreter.
 
-Management Server
-~~~~~~~~~~~~~~~~~
+Each backend instance only requires a standard version of Tor.
 
-Generate a key for your onion service.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You can use your existing onion service ``private_key`` or generate a
-new one using OpenSSL.
+Installing OnionBalance
+~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    $ openssl genrsa -out private_key 1024
+    $ pip install onionbalance
 
-Encrypt an onion service private key
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Your master onion service private key can be protected by encrypting it
-while it is stored on disk. Due to limitation in the underlying pycrypto
-library, only DES-CBC, DES-EDE3-CBC, AES-128-CBC encrypted keys are
-supported.
-
-::
-
-    $ openssl rsa -des3 -in private_key -out private_key.enc
-
-Configure Tor on the management server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The management server must run a release of Tor >= 0.2.7.1-alpha. Tor can be installed from the Tor repositions or compiled from source code.
-
-The ``data/torrc-server`` contains a sample Tor config file which is suitable
-for the management server.
-
-Install the management server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The management server code is available from the project's Git repository.
+or
 
 ::
 
     $ git clone https://github.com/DonnchaC/onionbalance.git
     $ cd onionbalance
+    $ python setup.py install
 
-The server can be install in a virtual environment or system-wide with the included setup script.
+The management server does not need to be installed on the same systems that host the backend onion service instances.
+
+
+Configuring the OnionBalance management server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The bundled ``onionbalance-config`` tool is the fastest way of generating the necessary keys and config files to get your onion service up and running.
+
 ::
 
-    $ sudo python setup.py install
+    $ onionbalance-config
+
+The config generator runs in an interactive mode when called without any arguments. The master directory should be stored on on the management server while the other instance directories should be transferred the backend servers.
+
+
+Configuring Tor on the management server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+OnionBalance requires that a recent version of Tor (*>= 0.2.7.1-alpha*) is available on the management server system. This versions of Tor is not yet available from the Tor repositories yet and must be compiled from source.
+
+::
+
+    wget https://www.torproject.org/dist/tor-0.2.7.1-alpha.tar.gz
+    tar -xzvf tor-0.2.7.1-alpha.tar.gz && cd tor-0.2.7.1-alpha
+    ./configure --disable-asciidoc && sudo make install
+
+The ``onionbalance/data/torrc-server`` contains a Tor config file which is suitable for the management server. The ``onionbalance-config`` tool also outputs a suitable Tor config file as ``master/torrc-server``.
+
+::
+
+    $ tor -f torrc-server
+
+Configuring the backend Onion Service instances
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each backend instance should be run a standard onion service which serves your website or other content. More information about configuring onion services is available in the Tor Project's `hidden service configuration guide <https://www.torproject.org/docs/tor-hidden-service.html.en>`_.
+
+If you have used the `onionbalance-config` tool you should be able to start your backend instances by running:
+
+::
+
+    $ tor -f instance_torrc
 
 Configuration
 -------------
 
-Each load balancing Tor instance is listed by it's unique onion address. An example config file is provided in ``config.yaml.example``.
+The OnionBalance manager must have access to the private key for the master onion service. The address corresponding to this private key is the address that users will use to access your service. This private key must be kept secure.
+
+The location of the private key must be specified as relative or absolute path under ``key``. Each backend Tor onion service instance is listed by it's unique onion address in the `instances` list.
+
+An example config file is provided in config.yaml.example. If you have used the
+``onionbalance-config`` tool you can simply use the generated config file at ``master/config.yaml``.
 
 Running
 -------
 
-Once your load balancing instances are running, you can start the management server which will begin publishing master descriptors:
+You can start the management server once your backend onion service instances are running. The management server must be left running to publish descriptors for your onion service.
 
 ::
 
     $ onionbalance -c config.yaml
+
+Multiple OnionBalance management servers can be run to make your service more resilient and remove a single point of failure. Each redundant server should be run with the same private key and config file.
+
+Contact
+-------
+
+This software is under active development and likely contains many bugs. Please open bugs on Github if you discover any issues with the software or documentation.
+
+I can also be contacted by PGP email or on IRC at `#onionbalance` on the OFTC network.
+
+::
+
+    pub   4096R/0x3B0D706A7FBFED86 2013-06-27 [expires: 2016-07-11]
+          Key fingerprint = 7EFB DDE8 FD21 11AE A7BE  1AA6 3B0D 706A 7FBF ED86
+    uid                 [ultimate] Donncha O'Cearbhaill <donncha@donncha.is>
+    sub   3072R/0xD60D64E73458F285 2013-06-27 [expires: 2016-07-11]
+    sub   3072R/0x7D49FC2C759AA659 2013-06-27 [expires: 2016-07-11]
+    sub   3072R/0x2C9C6F4ABBFCF7DD 2013-06-27 [expires: 2016-07-11]
 
 .. |build-status| image:: https://img.shields.io/travis/DonnchaC/onionbalance.svg?style=flat
     :alt: build status

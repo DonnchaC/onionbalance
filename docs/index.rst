@@ -12,15 +12,14 @@ Welcome to OnionBalance's documentation!
 ----
 
 
-Contents:
-----------
+Contents
+========
 
 .. toctree::
    :maxdepth: 3
 
-   design
    onionbalance
-
+   design
 
 Todo List
 =========
