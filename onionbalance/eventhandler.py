@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from builtins import str, object
+
 from onionbalance import log
 from onionbalance import descriptor
 
