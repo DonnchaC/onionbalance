@@ -63,7 +63,7 @@ class Instance(object):
                      self.onion_address)
         try:
             self.controller.get_hidden_service_descriptor(self.onion_address,
-                                                          await_result=True)
+                                                          await_result=False)
         except stem.DescriptorUnavailable:
             # Could not find the descriptor on the HSDir
             self.received = None
