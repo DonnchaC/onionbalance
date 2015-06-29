@@ -10,6 +10,7 @@ import errno
 import argparse
 import getpass
 import logging
+import pkg_resources
 
 import yaml
 import Crypto.PublicKey
@@ -276,6 +277,7 @@ def generate_config():
             "key (Not encrypted if no password is specified): ")
     master_passphrase = master_passphrase or args.password
 
+    # Finished reading input, starting to write config files.
     master_dir = os.path.join(output_path, 'master')
     util.try_make_dir(master_dir)
     master_key_file = os.path.join(master_dir,
@@ -295,24 +297,28 @@ def generate_config():
     config_yaml = yaml.dump(settings_data, default_flow_style=False)
 
     config_file_path = os.path.join(master_dir, 'config.yaml')
-    with open(config_file_path, "w") as config_file:
+    with open(config_file_path, "tw") as config_file:
         config_file.write(u"# OnionBalance Config File\n")
         config_file.write(config_yaml)
         logger.info("Wrote master service config file '%s'.",
                     os.path.abspath(config_file_path))
 
+    # Write master service torrc
+    master_torrc_path = os.path.join(master_dir, 'torrc-server')
+    master_torrc_template = pkg_resources.resource_string(__name__,
+                                                          'data/torrc-server')
+    with open(master_torrc_path, "tw") as master_torrc_file:
+        master_torrc_file.write(master_torrc_template.decode('utf-8'))
+
     # Try generate config files for each service instance
     for i, (instance_address, instance_key) in enumerate(instances):
         # Create a numbered directory for instance
         instance_dir = os.path.join(output_path, '{}{}'.format(tag, i+1))
-        instance_key_dir = os.path.join(instance_dir,
-                                        '{}'.format(instance_address))
+        instance_key_dir = os.path.join(instance_dir, instance_address)
         util.try_make_dir(instance_key_dir)
         os.chmod(instance_key_dir, 1472)  # chmod 2700 in decimal
 
-        instance_key_file = os.path.join(instance_dir,
-                                         '{}'.format(instance_address),
-                                         'private_key')
+        instance_key_file = os.path.join(instance_key_dir, 'private_key')
         with open(instance_key_file, "wb") as key_file:
             os.chmod(instance_key_file, 384)  # chmod 0600 in decimal
             key_file.write(instance_key.exportKey())
@@ -321,10 +327,16 @@ def generate_config():
 
         # Write torrc file for each instance
         instance_torrc = os.path.join(instance_dir, 'instance_torrc')
-        with open(instance_torrc, "w") as torrc_file:
-            torrc_file.write("SocksPort 0\n")
-            torrc_file.write("HiddenServiceDir {}\n".format(instance_address))
-            torrc_file.write("{}\n".format(torrc_port_line))
+        instance_torrc_template = pkg_resources.resource_string(
+            __name__, 'data/torrc-instance')
+        with open(instance_torrc, "tw") as torrc_file:
+            torrc_file.write(instance_torrc_template.decode('utf-8'))
+            # The ./ relative path prevents Tor from raising relative
+            # path warnings. The relative path may need to be edited manual
+            # to work on Windows systems.
+            torrc_file.write(u"HiddenServiceDir {}\n".format(
+                instance_address))
+            torrc_file.write(u"{}\n".format(torrc_port_line))
 
     # Output final status message
     logger.info("Done! Successfully generated an OnionBalance config and %d "

@@ -22,28 +22,30 @@ def read(*names, **kwargs):
     ).read()
 
 setup(
-    name = "OnionBalance",
-    packages = ["onionbalance"],
-    entry_points = {
+    name="OnionBalance",
+    packages=["onionbalance"],
+    entry_points={
         "console_scripts": [
             'onionbalance = onionbalance.manager:main',
             'onionbalance-config = onionbalance.settings:generate_config',
         ]},
-    description = "Tool for distributing Tor onion services connections to "
-                  "multiple backend Tor instances",
-    long_description = read('README.rst'),
-    version = module_info.get('__version__'),
-    author = module_info.get('__author__'),
-    author_email = module_info.get('__contact__'),
-    url = module_info.get('__url__'),
-    license = module_info.get('__license__'),
-    keywords = 'tor',
-    install_requires = [
+    description="Tool for distributing Tor onion services connections to "
+                "multiple backend Tor instances.",
+    long_description=read('README.rst'),
+    version=module_info.get('__version__'),
+    author=module_info.get('__author__'),
+    author_email=module_info.get('__contact__'),
+    url=module_info.get('__url__'),
+    license=module_info.get('__license__'),
+    keywords='tor',
+    install_requires=[
         'stem>=1.4.0-dev',
         'PyYAML>=3.11',
         'pycrypto>=2.6.1',
         'schedule>=0.3.1',
         'future>=0.14.0',
         ],
-    tests_require=['tox', 'pytest', 'mock', 'pytest-mock'],
+    tests_require=['tox', 'pytest', 'mock', 'pytest-mock', 'pexpect'],
+    package_data={'onionbalance': ['data/*']},
+    include_package_data=True,
 )
