@@ -1,3 +1,6 @@
+OnionBalance
+============
+
 Introduction
 ------------
 
@@ -96,19 +99,19 @@ Multiple OnionBalance management servers can be run to make your service more re
 Use Cases
 ---------
 
-- A popular onion service with an overloaded web server or Tor process:
+- A popular onion service with an overloaded web server or Tor process
 
   A service such as Facebook which gets a large number of users would like to distribute client requests across multiple servers as the load is too much for a single Tor instance to handle. They would also like to balance between instances when the 'encrypted services' proposal is implemented [2555].
 
-- Redundancy and automatic failover:
+- Redundancy and automatic failover
 
   A political activist would like to keep their web service accessible and secure in the event that the secret police seize some of their servers. Clients should ideally automatically fail-over to another online instances with minimal service disruption.
 
-- 'Shared Hosting' scenarios:
+- 'Shared Hosting' scenarios
 
   A hosting provider wishes to allow their customers to access their shared hosting control panel over an encrypted onion service. Rather than creating an individual onion service (with corresponding overhead) for thousands of customers, the host could instead run one onion service. Multiple service descriptors could then be published under unique customer onion addresses which would then be routed to that users control panel. This could also enable a low-resourced OnionFlare-type implementation.
 
-- Secure Onion Service Key storage:
+- Secure Onion Service Key storage
 
   An onion service operator would like to compartmentalize their permanent onion key in a secure location separate to their Tor process and other services. With this proposal permanent keys could be stored on an independent, isolated system.
 
