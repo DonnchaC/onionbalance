@@ -46,7 +46,7 @@ setup(
         'schedule>=0.3.1',
         'future>=0.14.0',
         ],
-    tests_require=['tox', 'pytest', 'mock', 'pytest-mock', 'pexpect'],
+    tests_require=['tox', 'pytest-mock', 'pytest', 'mock', 'pexpect'],
     package_data={'onionbalance': ['data/*']},
     include_package_data=True,
     classifiers=[
