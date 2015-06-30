@@ -168,28 +168,6 @@ def sign_descriptor(descriptor, service_key):
     return descriptor + signature_with_headers
 
 
-def fetch_descriptor(controller, onion_address, hsdir=None):
-    """
-    Try fetch a HS descriptor from any of the responsible HSDirs. Initiate
-    fetch from hsdir only if it is specified.
-    """
-
-    if hsdir:
-        server_arg = " SERVER={}".format(hsdir)
-    else:
-        server_arg = ""
-
-    logger.debug("Sending descriptor fetch for %s.onion.", onion_address)
-    response = controller.msg("HSFETCH %s%s" % (onion_address, server_arg))
-    (response_code, _, response_content) = response.content()[0]
-    if not response.is_ok():
-        if response_code == "552":
-            raise stem.InvalidRequest(response_code, response_content)
-        else:
-            raise stem.ProtocolError("HSFETCH returned unexpected "
-                                     "response code: %s" % response_code)
-
-
 def descriptor_received(descriptor_content):
     """
     Process onion service descriptors retrieved from the HSDir system or
@@ -201,6 +179,7 @@ def descriptor_received(descriptor_content):
             HiddenServiceDescriptor(descriptor_content, validate=True)
     except ValueError:
         logger.exception("Received an invalid service descriptor.")
+        return None
 
     # Ensure the received descriptor matches the requested descriptor
     permanent_key = Crypto.PublicKey.RSA.importKey(

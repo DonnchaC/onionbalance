@@ -83,7 +83,7 @@ class Instance(object):
         logger.debug("Received a descriptor for instance %s.onion.",
                      self.onion_address)
 
-        # Reject descriptor if it's timestamp is older than the current
+        # Reject descriptor if its timestamp is older than the current
         # descriptor. Prevent's HSDir's replaying old, expired descriptors.
         if self.timestamp and parsed_descriptor.published < self.timestamp:
             logger.error("Received descriptor for instance %s.onion with "
@@ -100,10 +100,11 @@ class Instance(object):
         )
 
         # If the new introduction points are different, flag this instance
-        # as modified.
-        if not all(ip in self.introduction_points
-                   for ip in introduction_points):
-            logger.info("Found new introduction points for instance "
+        # as modified. Compare the set of introduction point identifiers
+        # (fingerprint of the per IP circuit service key).
+        if (set(ip.identifier for ip in introduction_points) !=
+                set(ip.identifier for ip in self.introduction_points)):
+            logger.info("The introduction point set has changed for instance "
                         "%s.onion.", self.onion_address)
             self.changed_since_published = True
             self.introduction_points = introduction_points
