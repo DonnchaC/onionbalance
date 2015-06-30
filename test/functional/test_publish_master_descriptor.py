@@ -140,4 +140,5 @@ def test_master_descriptor_publication(tmpdir):
             instance_ips = instance_descriptor.introduction_points()
 
             # Check if all instance IPs were included in the master descriptor
-            assert all(ip in instance_ips for ip in master_ips)
+            assert (set(ip.identifier for ip in instance_ips) ==
+                    set(ip.identifier for ip in master_ips))
