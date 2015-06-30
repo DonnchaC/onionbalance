@@ -201,6 +201,7 @@ def descriptor_received(descriptor_content):
             HiddenServiceDescriptor(descriptor_content, validate=True)
     except ValueError:
         logger.exception("Received an invalid service descriptor.")
+        return None
 
     # Ensure the received descriptor matches the requested descriptor
     permanent_key = Crypto.PublicKey.RSA.importKey(
