@@ -51,7 +51,7 @@ management server.
 Basic Mode
 ~~~~~~~~~~
 
-In the 'Basic mode\` of operation, the introduction point information is
+In the 'Basic mode` of operation, the introduction point information is
 transferred from the onion service instances to the management server
 via the HSDir system. Each instance runs an onion service with an
 instance specific permanent key. The instance publishes a descriptor to
