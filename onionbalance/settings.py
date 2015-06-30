@@ -300,7 +300,7 @@ def generate_config():
     config_yaml = yaml.dump(settings_data, default_flow_style=False)
 
     config_file_path = os.path.join(master_dir, 'config.yaml')
-    with open(config_file_path, "tw") as config_file:
+    with open(config_file_path, "w") as config_file:
         config_file.write(u"# OnionBalance Config File\n")
         config_file.write(config_yaml)
         logger.info("Wrote master service config file '%s'.",
@@ -310,7 +310,7 @@ def generate_config():
     master_torrc_path = os.path.join(master_dir, 'torrc-server')
     master_torrc_template = pkg_resources.resource_string(__name__,
                                                           'data/torrc-server')
-    with open(master_torrc_path, "tw") as master_torrc_file:
+    with open(master_torrc_path, "w") as master_torrc_file:
         master_torrc_file.write(master_torrc_template.decode('utf-8'))
 
     # Try generate config files for each service instance
@@ -332,7 +332,7 @@ def generate_config():
         instance_torrc = os.path.join(instance_dir, 'instance_torrc')
         instance_torrc_template = pkg_resources.resource_string(
             __name__, 'data/torrc-instance')
-        with open(instance_torrc, "tw") as torrc_file:
+        with open(instance_torrc, "w") as torrc_file:
             torrc_file.write(instance_torrc_template.decode('utf-8'))
             # The ./ relative path prevents Tor from raising relative
             # path warnings. The relative path may need to be edited manual
