@@ -144,10 +144,16 @@ def parse_cmd_args():
                         "in ascending order: debug, info, warning, error, "
                         "critical).  The default is info.")
 
-    parser.add_argument("--service-port-line", type=str,
-                        default="HiddenServicePort 80 127.0.0.1:80",
-                        help="Port line for each instance's torrc file "
-                        "(default: %(default)s).")
+    parser.add_argument("--service-virtual-port", type=str,
+                        default="80",
+                        help="Onion service port for external client "
+                        "connections (default: %(default)s).")
+
+    # TODO: Add validator to check if the target host:port line makes sense.
+    parser.add_argument("--service-target", type=str,
+                        default="127.0.0.1:80",
+                        help="Target IP and port where your service is "
+                        "listening (default: %(default)s).")
 
     # .. todo:: Add option to specify HS host and port for instance torrc
 
@@ -257,12 +263,26 @@ def generate_config():
                     "[{}]: ".format(args.tag))
     tag = tag or args.tag
 
-    torrc_port_line = None
+    # Create HiddenServicePort line for instance torrc file
+    service_virtual_port = None
     if interactive:
-        torrc_port_line = input("Specify a HiddenServicePort option for each "
-                                "instance's torrc file [{}]: ".format(
-                                    args.service_port_line))
-    torrc_port_line = torrc_port_line or args.service_port_line
+        service_virtual_port = input("Specify the service virtual port (for "
+                                     "client connections) [{}]: ".format(
+                                         args.service_virtual_port))
+    service_virtual_port = service_virtual_port or args.service_virtual_port
+
+    service_target = None
+    if interactive:
+        # In interactive mode, change default target to match the specified
+        # virtual port
+        default_service_target = u'127.0.0.1:{}'.format(service_virtual_port)
+        service_target = input("Specify the service target IP and port (where "
+                               "your service is listening) [{}]: ".format(
+                                   default_service_target))
+        service_target = service_target or default_service_target
+    service_target = service_target or args.service_target
+    torrc_port_line = u'HiddenServicePort {} {}'.format(service_virtual_port,
+                                                        service_target)
 
     instances = []
     for i in range(0, num_instances):
