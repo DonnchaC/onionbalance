@@ -44,7 +44,7 @@ The bundled ``onionbalance-config`` tool is the fastest way to generate the nece
 
     $ onionbalance-config
 
-The config generator runs in an interactive mode when called without any arguments. The ``master`` directory should be stored on on the management server while the other instance directories should be transferred to the respective backend servers.
+The config generator runs in an interactive mode when called without any arguments. The ``master`` directory should be stored on the management server while the other instance directories should be transferred to the respective backend servers.
 
 
 Configuring Tor on the management server

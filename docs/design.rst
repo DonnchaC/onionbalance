@@ -38,7 +38,7 @@ Management Server
   Server running OnionBalance which collates introduction points and
   publishes a master descriptor.
 Metadata Channel
-  A direct connection from an instance to a managment server which can
+  A direct connection from an instance to a management server which can
   be used for instance descriptor upload and transfer of other data.
 
 Retrieving Introduction Point Data
@@ -90,7 +90,7 @@ Limitations
 '''''''''''
 
 -  A malicious HSDir could replay old instance descriptors in an attempt
-   to included expired introduction points in the master descriptor.
+   to include expired introduction points in the master descriptor.
    When an attacker does not control all of the responsible HSDirs this
    attack can be mitigated by not accepting descriptors with a timestamp
    older than the most recently retrieved descriptor.
@@ -158,7 +158,7 @@ reliable than the HSDir system.
 
 .. note ::
     The management server communication channel is not implemented yet. The
-    Complex Mode design may be revised significanlty before implementation.
+    Complex Mode design may be revised significantly before implementation.
 
 Complex mode minimizes the information transmitted via the HSDir
 system and may make it more difficult for a HSDir to determine that
@@ -215,7 +215,7 @@ advantages to any of these approaches.
 Generation and Publication of Master Descriptor
 -----------------------------------------------
 
-The managment server should generate a onion service descriptor
+The management server should generate a onion service descriptor
 containing the selected introduction points. This master descriptor is
 then signed by the actual onion service permanent key. The signed master
 descriptor should be published to the responsible HSDirs as normal.
