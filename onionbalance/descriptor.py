@@ -3,6 +3,7 @@ import hashlib
 import base64
 import textwrap
 import datetime
+import random
 
 import Crypto.Util.number
 import stem
@@ -12,6 +13,61 @@ from onionbalance import log
 from onionbalance import config
 
 logger = log.get_logger()
+
+
+def choose_introduction_point_set(available_introduction_points):
+    """
+    Select a set introduction points to included in a HS descriptor.
+
+    Provided with a list of available introduction points for each
+    backend instance for an onionbalance service.
+
+    Introduciton points are selected to try and achieve the greatest
+    distribution of introduction points across all of the available backend
+    instances.
+
+    Return a list of IntroductionPoints.
+    """
+
+    # Shuffle the instance order before beginning to pick intro points
+    random.shuffle(available_introduction_points)
+
+    num_active_instances = len(available_introduction_points)
+    ips_per_instance = [len(ips) for ips in available_introduction_points]
+    num_intro_points = sum(ips_per_instance)
+
+    # Choose up to `MAX_INTRO_POINTS` IPs from the service instances. If less
+    # than `MAX_INTRO_POINTS` IPs are available, we should pick all available
+    # IP's
+    max_introduction_points = min(num_intro_points,
+                                  config.MAX_INTRO_POINTS)
+
+    # Determine the maximum number of IP's which can be selected from
+    # each instance to give the widest distribution of introduction
+    # point
+    pos = 0
+    intro_selection = [0] * num_active_instances
+
+    # Keep looping until we have selected enough introduction points
+    while sum(intro_selection) < max_introduction_points:
+        # Check if the current instance has more IPs available
+        if(ips_per_instance[pos] - intro_selection[pos] > 0):
+            intro_selection[pos] += 1
+        # Increment and wrap the pointer to the current instance
+        pos = ((pos + 1) % num_active_instances)
+
+    # intro_selection now lists the count/number of IPs to select from each
+    # instance. We now sample the determined number of IPs from the IPs
+    # available for each instance.
+    choosen_intro_points = []
+    for count, intros in zip(intro_selection, available_introduction_points):
+        choosen_intro_points.extend(random.sample(intros, count))
+
+    # Shuffle choosen IP's to try reveal less information about which
+    # instances are online and have introduction points included.
+    random.shuffle(choosen_intro_points)
+
+    return choosen_intro_points
 
 
 def generate_service_descriptor(permanent_key, introduction_point_list=None,

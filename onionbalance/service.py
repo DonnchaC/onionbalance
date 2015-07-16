@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import random
 import time
 import base64
 
@@ -126,37 +125,9 @@ class Service(object):
                 instance.changed_since_published = False
                 available_intro_points.append(instance.introduction_points)
 
-        # Shuffle the instance order before beginning to pick intro points
-        random.shuffle(available_intro_points)
-
-        num_active_instances = len(available_intro_points)
-        ips_per_instance = [len(ips) for ips in available_intro_points]
-        num_intro_points = sum(ips_per_instance)
-
-        # Choose up to `MAX_INTRO_POINTS` IPs from the service instances.
-        max_introduction_points = min(num_intro_points,
-                                      config.MAX_INTRO_POINTS)
-
-        # Determine the maximum number of IP's which can be selected from
-        # each instance to give the widest distribution of introduction
-        # point
-        pos = 0
-        intro_selection = [0] * num_active_instances
-        # Keep looping until we have selected enough introduction points
-        while sum(intro_selection) < max_introduction_points:
-            # Check if any more IPs are available from the current instance
-            if(ips_per_instance[pos] - intro_selection[pos] > 0):
-                intro_selection[pos] += 1
-            # Increment and wrap the pointer to the current instance
-            pos = ((pos + 1) % num_active_instances)
-
-        choosen_intro_points = []
-        for count, intros in zip(intro_selection, available_intro_points):
-            choosen_intro_points.extend(random.sample(intros, count))
-
-        # Shuffle IP's to try reveal less information about which
-        # instances are online and have introduction points included.
-        random.shuffle(choosen_intro_points)
+        num_intro_points = sum(len(ips) for ips in available_intro_points)
+        choosen_intro_points = descriptor.choose_introduction_point_set(
+            available_intro_points)
 
         logger.debug("Selected %d IPs of %d for service %s.onion.",
                      len(choosen_intro_points), num_intro_points,
