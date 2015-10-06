@@ -43,7 +43,6 @@ setup(
         'stem>=1.4.0-dev',
         'PyYAML>=3.11',
         'pycrypto>=2.6.1',
-        'future>=0.14.0',
         ],
     tests_require=['tox', 'pytest-mock', 'pytest', 'mock', 'pexpect'],
     package_data={'onionbalance': ['data/*']},
