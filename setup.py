@@ -40,6 +40,7 @@ setup(
     license=module_info.get('__license__'),
     keywords='tor',
     install_requires=[
+        'setuptools',
         'stem>=1.4.0-dev',
         'PyYAML>=3.11',
         'pycrypto>=2.6.1',
