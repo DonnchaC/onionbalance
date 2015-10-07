@@ -35,8 +35,9 @@ def parse_config_file(config_file):
             config_data = yaml.load(handle.read())
             logger.info("Loaded the config file '%s'.", config_path)
     else:
-        logger.error("The specified config file '%s' does not exist.",
-                     config_path)
+        logger.error("The specified config file '%s' does not exist. The "
+                     "onionbalance-config tool can generate the required "
+                     "keys and config files.", config_path)
         sys.exit(1)
 
     # Rewrite relative paths in the config to be relative to the config
@@ -111,9 +112,9 @@ def parse_cmd_args():
     """
 
     parser = argparse.ArgumentParser(
-        description="%s generates config files and keys for OnionBalance "
-        "instances and managment servers. Calling without any options will"
-        "initiate an interactive mode." % sys.argv[0])
+        description="onionbalance-config generates config files and keys for "
+        "OnionBalance instances and management servers. Calling without any "
+        "options will initiate an interactive mode.")
 
     parser.add_argument("--key", type=str, default=None,
                         help="RSA private key for the master onion service.")

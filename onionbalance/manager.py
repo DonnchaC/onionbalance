@@ -31,8 +31,8 @@ def parse_cmd_args():
     """
 
     parser = argparse.ArgumentParser(
-        description="%s distributes the requests for a Tor hidden services "
-        "across multiple (remote) Tor instances." % sys.argv[0])
+        description="onionbalance distributes the requests for a Tor hidden "
+        "services across multiple Tor instances.")
 
     parser.add_argument("-i", "--ip", type=str, default="127.0.0.1",
                         help="Tor controller IP address")
@@ -41,7 +41,7 @@ def parse_cmd_args():
                         help="Tor controller port")
 
     parser.add_argument("-c", "--config", type=str,
-                        default="config.yaml", help="Config file")
+                        default="config.yaml", help="Config file location")
 
     parser.add_argument("-v", "--verbosity", type=str, default="info",
                         help="Minimum verbosity level for logging.  Available "
