@@ -20,7 +20,10 @@ import datetime
 import sphinx.environment
 from docutils.utils import get_source_line
 
-from onionbalance import __version__, __author__, __contact__
+# Documentation configuration
+__version__ = '0.1.1'
+__author__ = "Donncha O'Cearbhaill"
+__contact__ = "donncha@donncha.is"
 
 # Ignore the 'dev' version suffix.
 if __version__.endswith('dev'):
