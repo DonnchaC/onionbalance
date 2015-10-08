@@ -12,6 +12,7 @@ Submodules
    onionbalance.instance
    onionbalance.log
    onionbalance.manager
+   onionbalance.schedule
    onionbalance.service
    onionbalance.settings
    onionbalance.util
