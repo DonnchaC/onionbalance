@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to install Chutney, configure a Tor network and wait for the hidden
 # service system to be available.
-git clone https://github.com/DonnchaC/chutney.git
+git clone https://git.torproject.org/chutney.git
 cd chutney
 # Stop chutney network if it is already running
 ./chutney stop networks/hs
