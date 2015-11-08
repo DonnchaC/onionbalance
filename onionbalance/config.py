@@ -8,6 +8,7 @@ Define default config options for the management server
 # Set default configuration options for the management server
 
 REPLICAS = 2
+HSDIR_SET = 3  # Publish each descriptor to 3 consecutive HSDirs
 MAX_INTRO_POINTS = 10
 DESCRIPTOR_VALIDITY_PERIOD = 24 * 60 * 60
 DESCRIPTOR_OVERLAP_PERIOD = 60 * 60
@@ -24,3 +25,5 @@ TOR_CONTROL_PASSWORD = None
 
 # Store global data about onion services and their instance nodes.
 services = []
+
+controller = None
