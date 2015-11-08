@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import datetime
+import string
 
 import pytest
 import Crypto.PublicKey.RSA
 import stem.descriptor
 import hashlib
+
 from binascii import unhexlify
 
 from onionbalance import descriptor
@@ -199,41 +201,38 @@ PRIVATE_KEY = Crypto.PublicKey.RSA.importKey(PEM_PRIVATE_KEY)
 UNIX_TIMESTAMP = 1435233021
 
 
-def setup_introduction_point_lists(desired_intro_points):
-    '''
-    Create a list of lists of IntroductionPoint instances for unit
-    tests
-    '''
-
-
-@pytest.mark.parametrize('intro_point_distribution, selected_count', [
+@pytest.mark.parametrize('intro_point_distribution, selected_ip_count', [
     ([3], 3),
     ([3, 3], 6),
     ([0], 0),
     ([10, 10], 10),
     ([3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3], 10),
-    pytest.mark.xfail(([0, 3, 3], 9)),
+    ([10, 10, 10, 10, 10, 10], 10),
+    pytest.mark.xfail(([0, 3, 3], 10)),
+    pytest.mark.xfail(([6, 3, 3], 12)),
 ])
-def test_choose_introduction_point_set(intro_point_distribution,
-                                       selected_count):
-    '''
+def test_introduction_point_selection(intro_point_distribution,
+                                      selected_ip_count):
+    """
     Basic test case to check that the correct number of IPs are selected.
-    '''
+    """
+    # Create Mock list of instances (index by letter) and their respective
+    # introduction points.
+    available_intro_points = [[index] * count for index, count
+                              in zip(string.ascii_lowercase,
+                                     intro_point_distribution)]
 
-    # Create Mock list of instances and respective introduction points.
-    available_intro_points = [['IP'] * count for count
-                              in intro_point_distribution]
+    intro_set = descriptor.IntroductionPointSet(available_intro_points)
 
-    selected_introduction_points = descriptor.choose_introduction_point_set(
-        available_intro_points)
-
-    assert len(selected_introduction_points) == selected_count
+    # Max 10 introduction points per descriptor
+    choosen_intro_points = intro_set.choose(10)
+    assert len(choosen_intro_points) == selected_ip_count
 
 
 def test_generate_service_descriptor(monkeypatch, mocker):
-    '''
+    """
     Test creation of a fully signed hidden service descriptor
-    '''
+    """
     # Mock the datetime function to return a constant timestamp
     class frozen_datetime(datetime.datetime):
         @classmethod
