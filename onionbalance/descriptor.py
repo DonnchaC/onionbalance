@@ -277,7 +277,7 @@ def upload_descriptor(controller, signed_descriptor, hsdirs=None):
         server_args = ""
 
     # Stem will insert the leading + and trailing '\r\n.\r\n'
-    response = controller.msg("HSPOST%s\n%s" %
+    response = controller.msg("HSPOST %s\n%s" %
                               (server_args, signed_descriptor))
 
     (response_code, divider, response_content) = response.content()[0]
