@@ -163,6 +163,36 @@ def test_calc_descriptor_id():
             b'f58ce3c63ee634e1ffaf936251a822ff06385f55')
 
 
+def test_calc_descriptor_id_full():
+
+    descriptor_id = calc_descriptor_id_b32(
+        onion_address='jyvfq5umznvka34v',
+        time=UNIX_TIMESTAMP,
+        replica=0)
+
+    assert descriptor_id == '6wgohrr64y2od75psnrfdkbc74ddqx2v'
+
+
+def test_calc_descriptor_id_full_replica():
+    descriptor_id = calc_descriptor_id_b32(
+        onion_address='jyvfq5umznvka34v',
+        time=UNIX_TIMESTAMP,
+        replica=1)
+
+    assert descriptor_id == 'he35m4nouhkz6thymvhdvc3y5htqs422'
+
+
+def test_calc_descriptor_id_full_with_deviation():
+
+    descriptor_id = calc_descriptor_id_b32(
+        onion_address='jyvfq5umznvka34v',
+        time=UNIX_TIMESTAMP,
+        replica=0,
+        deviation=1)
+
+    assert descriptor_id == 'esnnz2q6dnfwprvc4qhsgsfzz6r6ksrt'
+
+
 def test_rounded_timestamp():
     timestamp = datetime.datetime(2015, 6, 25, 13, 13, 25)
     assert rounded_timestamp(timestamp) == u'2015-06-25 13:00:00'

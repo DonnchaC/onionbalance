@@ -75,6 +75,23 @@ def calc_secret_id_part(time_period, descriptor_cookie, replica):
     return secret_id_part.digest()
 
 
+def calc_descriptor_id_b32(onion_address, time, replica, deviation=0,
+                           descriptor_cookie=None):
+    """
+    High level function to calculate the descriptor ID for a hidden
+    service.
+
+    The onion address and returned descriptor ID are both base32 encoded.
+    """
+    permanent_id = base64.b32decode(onion_address, 1)
+    time_period = get_time_period(time, permanent_id) + int(deviation)
+    secret_id_part = calc_secret_id_part(time_period, descriptor_cookie,
+                                         replica)
+    descriptor_id = calc_descriptor_id(permanent_id, secret_id_part)
+
+    return base64.b32encode(descriptor_id).decode('utf-8').lower()
+
+
 def rounded_timestamp(timestamp=None):
     """
     Create timestamp rounded down to the nearest hour
