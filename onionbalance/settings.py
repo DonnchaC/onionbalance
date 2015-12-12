@@ -158,7 +158,15 @@ def parse_cmd_args():
 
     # .. todo:: Add option to specify HS host and port for instance torrc
 
-    return parser.parse_args()
+    parser.add_argument("--version", action='store_true',
+                        help="Display the onionbalance version and exit.")
+
+    args = parser.parse_args()
+    if args.version:
+        print("onionbalance version: {}".format(onionbalance.__version__))
+        sys.exit(0)
+
+    return args
 
 
 def generate_config():
@@ -166,13 +174,13 @@ def generate_config():
     Entry point for interactive config file generation.
     """
 
+    # Parse initial command line options
+    args = parse_cmd_args()
+
     # Simplify the logging output for the command line tool
     logger = log.get_config_generator_logger()
 
     logger.info("Beginning OnionBalance config generation.")
-
-    # Parse initial command line options
-    args = parse_cmd_args()
 
     # If CLI options have been provided, don't enter interactive mode
     # Crude check to see if any options beside --verbosity are set.

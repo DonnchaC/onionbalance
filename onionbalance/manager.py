@@ -48,7 +48,15 @@ def parse_cmd_args():
                              "in ascending order: debug, info, warning, "
                              "error, critical).  The default is info.")
 
-    return parser.parse_args()
+    parser.add_argument("--version", action='store_true',
+                        help="Display the onionbalance version and exit.")
+
+    args = parser.parse_args()
+    if args.version:
+        print("onionbalance version: {}".format(onionbalance.__version__))
+        sys.exit(0)
+
+    return args
 
 
 def main():
