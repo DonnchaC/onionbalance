@@ -12,12 +12,12 @@ import logging
 # import Crypto.PublicKey
 import stem
 from stem.control import Controller, EventType
+import schedule
 
 from onionbalance import log
 from onionbalance import settings
 from onionbalance import config
 from onionbalance import eventhandler
-from onionbalance import schedule
 
 import onionbalance.service
 import onionbalance.instance
