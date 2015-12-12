@@ -48,22 +48,17 @@ def parse_cmd_args():
                              "in ascending order: debug, info, warning, "
                              "error, critical).  The default is info.")
 
-    parser.add_argument("--version", action='store_true',
-                        help="Display the onionbalance version and exit.")
+    parser.add_argument('--version', action='version',
+                        version='onionbalance %s' % onionbalance.__version__)
 
-    args = parser.parse_args()
-    if args.version:
-        print("onionbalance version: {}".format(onionbalance.__version__))
-        sys.exit(0)
-
-    return args
+    return parser
 
 
 def main():
     """
     Entry point when invoked over the command line.
     """
-    args = parse_cmd_args()
+    args = parse_cmd_args().parse_args()
     config_file_options = settings.parse_config_file(args.config)
 
     # Update global configuration with options specified in the config file
