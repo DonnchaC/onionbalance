@@ -9,7 +9,7 @@ distributed across multiple backend Tor instances. OnionBalance provides
 load-balancing while also making onion services more resilient and reliable
 by eliminating single points-of-failure.
 
-- Latest release: |version| (:ref:`changelog`)
+- Documentation: https://onionbalance.readthedocs.org
 - GitHub: https://github.com/DonnchaC/onionbalance/
 - Issue tracker: https://github.com/DonnchaC/onionbalance/issues
 - PyPI: https://pypi.python.org/pypi/OnionBalance
