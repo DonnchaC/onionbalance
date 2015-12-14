@@ -2,15 +2,15 @@
 # ---
 # Each hidden service key line should be followed be followed by a list of 0
 # or more instances which contain the onion address of the load balancing
-# HS and any authentication data needed to access that HS.
+# hidden service
 
 REFRESH_INTERVAL: 600 # How often to poll for updated descriptors
 services:
     - key: /path/to/private_key # 7s4hxwwifcslrus2.onion
       instances:
-        - address: o6ff73vmigi4oxka # srv1
-        - address: nkz23ai6qesuwqhc # srv2
-          auth: dCmx3qIvArbil8A0KM4KgQ== # Hidden service authentication key
+        - address: o6ff73vmigi4oxka # web1
+        - address: nkz23ai6qesuwqhc # web2
     - key: /path/to/private_key.enc # dpkdeys3apjtqydk.onion
       instances:
-        - address: htbzowpp5cn7wj2u # srv3
+        - address: htbzowpp5cn7wj2u # irc1
+        - address: huey7aiod8dja8a3 # irc2
