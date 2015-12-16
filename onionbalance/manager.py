@@ -46,7 +46,7 @@ def parse_cmd_args():
                                                "config.yaml"),
                         help="Config file location")
 
-    parser.add_argument("-v", "--verbosity", type=str, default="info",
+    parser.add_argument("-v", "--verbosity", type=str, default=None,
                         help="Minimum verbosity level for logging.  Available "
                              "in ascending order: debug, info, warning, "
                              "error, critical).  The default is info.")
@@ -69,7 +69,15 @@ def main():
         if setting.isupper() and config_file_options.get(setting):
             setattr(config, setting, config_file_options.get(setting))
 
-    logger.setLevel(logging.__dict__[args.verbosity.upper()])
+    # Override the log level if specified on the command line.
+    if args.verbosity:
+        config.LOG_LEVEL = args.verbosity.upper()
+
+    # Write log file if configured in environment variable or config file
+    if config.LOG_LOCATION:
+        log.setup_file_logger(config.LOG_LOCATION)
+
+    logger.setLevel(logging.__dict__[config.LOG_LEVEL.upper()])
 
     # Create a connection to the Tor control port
     try:
