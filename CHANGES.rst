@@ -1,3 +1,15 @@
+0.1.3
+-----
+
+- Streamline the integration tests by using Tor and Chutney from the
+  upstream repositories.
+- Fix bug when HSFETCH is called with a HSDir argument (3d225fd).
+- Remove the 'schedule' package from the source code and re-add it as a
+  dependency. This Python package is now packaged for Debian.
+- Extensively restructure the documentation to make it more comprehensible.
+- Add --version argument to the command line
+- Add configuration options to output log entries to a log file.
+
 0.1.2
 -----
 
