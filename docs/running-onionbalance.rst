@@ -78,11 +78,19 @@ you can simply use the generated config file from ``master/config.yaml``.
 .. note::
 
     By default onionbalance will search for a ``config.yaml`` file in
-    ``/etc/onionbalance/`` followed by the current working directory.
+    the current working directory.
 
 
 Configuration Options
 ~~~~~~~~~~~~~~~~~~~~~
+
+LOG_LOCATION
+  The path where OnionBalance should write its log file.
+
+LOG_LEVEL
+  Specify the minimum verbosity of log messages to output. All log messages
+  equal or higher the the specified log level are output. The available
+  log levels are the same as the --verbosity command line option.
 
 REFRESH_INTERVAL
   How often to check for updated backend hidden service descriptors. This
@@ -113,6 +121,24 @@ DESCRIPTOR_OVERLAP_PERIOD
 DESCRIPTOR_UPLOAD_PERIOD
   How often to publish a descriptor, even when the introduction points
   don't change (default: 3600 seconds)
+
+
+Environment Variables
+~~~~~~~~~~~~~~~~~~~~~
+
+ONIONBALANCE_CONFIG
+  Override the location for the OnionBalance configuration file.
+
+The loaded configuration file takes precedence over environment variables.
+Configuration file options will override environment variable which have the
+same name.
+
+ONIONBALANCE_LOG_LOCATION
+  See the config file option.
+
+ONIONBALANCE_LOG_LEVEL
+  See the config file option
+
 
 Files
 -----
