@@ -4,6 +4,7 @@ Load balance a hidden service across multiple (remote) Tor instances by
 create a hidden service descriptor containing introduction points from
 each instance.
 """
+import os
 import sys
 import argparse
 import time
@@ -41,7 +42,9 @@ def parse_cmd_args():
                         help="Tor controller port")
 
     parser.add_argument("-c", "--config", type=str,
-                        default="config.yaml", help="Config file location")
+                        default=os.environ.get('ONIONBALANCE_CONFIG',
+                                               "config.yaml"),
+                        help="Config file location")
 
     parser.add_argument("-v", "--verbosity", type=str, default="info",
                         help="Minimum verbosity level for logging.  Available "
