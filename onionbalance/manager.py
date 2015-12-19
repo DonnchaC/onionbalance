@@ -12,6 +12,7 @@ import logging
 # import Crypto.PublicKey
 import stem
 from stem.control import Controller, EventType
+from setproctitle import setproctitle  # pylint: disable=no-name-in-module
 
 import onionbalance
 from onionbalance import log
@@ -62,6 +63,7 @@ def main():
     """
     Entry point when invoked over the command line.
     """
+    setproctitle('onionbalance')
     args = parse_cmd_args().parse_args()
     config_file_options = settings.parse_config_file(args.config)
 

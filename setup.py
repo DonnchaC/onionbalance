@@ -45,6 +45,7 @@ setup(
         'PyYAML>=3.11',
         'pycrypto>=2.6.1',
         'future>=0.14.0',
+        'setproctitle',
         ],
     tests_require=['tox', 'pytest-mock', 'pytest', 'mock', 'pexpect'],
     package_data={'onionbalance': ['data/*']},
