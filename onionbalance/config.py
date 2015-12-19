@@ -18,5 +18,9 @@ PUBLISH_CHECK_INTERVAL = 5 * 60
 LOG_LOCATION = os.environ.get('ONIONBALANCE_LOG_LOCATION')
 LOG_LEVEL = os.environ.get('ONIONBALANCE_LOG_LEVEL', 'info')
 
+TOR_ADDRESS = '127.0.0.1'
+TOR_PORT = 9051
+TOR_CONTROL_PASSWORD = None
+
 # Store global data about onion services and their instance nodes.
 services = []

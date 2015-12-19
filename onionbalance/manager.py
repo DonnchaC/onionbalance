@@ -35,10 +35,10 @@ def parse_cmd_args():
         description="onionbalance distributes the requests for a Tor hidden "
         "services across multiple Tor instances.")
 
-    parser.add_argument("-i", "--ip", type=str, default="127.0.0.1",
+    parser.add_argument("-i", "--ip", type=str, default=None,
                         help="Tor controller IP address")
 
-    parser.add_argument("-p", "--port", type=int, default=9051,
+    parser.add_argument("-p", "--port", type=int, default=None,
                         help="Tor controller port")
 
     parser.add_argument("-c", "--config", type=str,
@@ -81,7 +81,10 @@ def main():
 
     # Create a connection to the Tor control port
     try:
-        controller = Controller.from_port(address=args.ip, port=args.port)
+        tor_address = (args.ip or config.TOR_ADDRESS)
+        tor_port = (args.port or config.TOR_PORT)
+
+        controller = Controller.from_port(address=tor_address, port=tor_port)
     except stem.SocketError as exc:
         logger.error("Unable to connect to Tor control port: %s", exc)
         sys.exit(1)
@@ -89,7 +92,7 @@ def main():
         logger.debug("Successfully connected to the Tor control port.")
 
     try:
-        controller.authenticate()
+        controller.authenticate(password=config.TOR_CONTROL_PASSWORD)
     except stem.connection.AuthenticationFailure as exc:
         logger.error("Unable to authenticate to Tor control port: %s", exc)
         sys.exit(1)
