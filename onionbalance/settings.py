@@ -83,7 +83,7 @@ def initialize_services(controller, services_config):
         # Load all instances for the current onion service
         instance_config = service.get("instances", [])
         if not instance_config:
-            logger.error("Could not load and instances for service "
+            logger.error("Could not load any instances for service "
                          "%s.onion.", onion_address)
             sys.exit(1)
         else:
