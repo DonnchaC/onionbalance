@@ -7,7 +7,6 @@ each instance.
 import os
 import sys
 import argparse
-import time
 import logging
 
 # import Crypto.PublicKey
@@ -91,6 +90,8 @@ def main():
     else:
         logger.debug("Successfully connected to the Tor control port.")
 
+    eventhandler.SignalHandler(controller)
+
     try:
         controller.authenticate(password=config.TOR_CONTROL_PASSWORD)
     except stem.connection.AuthenticationFailure as exc:
@@ -130,15 +131,11 @@ def main():
     schedule.every(config.PUBLISH_CHECK_INTERVAL).seconds.do(
         onionbalance.service.publish_all_descriptors)
 
-    try:
-        # Run initial fetch of HS instance descriptors
-        schedule.run_all(delay_seconds=config.INITIAL_DELAY)
+    # Run initial fetch of HS instance descriptors
+    schedule.run_all(delay_seconds=config.INITIAL_DELAY)
 
-        # Begin main loop to poll for HS descriptors
-        while True:
-            schedule.run_pending()
-            time.sleep(1)
-    except KeyboardInterrupt:
-        logger.info("Keyboard interrupt received. Stopping the "
-                    "management server.")
+    # Begin main loop to poll for HS descriptors
+    while True:
+        schedule.run_pending()
+
     return 0

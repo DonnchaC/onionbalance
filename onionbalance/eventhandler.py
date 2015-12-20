@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from builtins import str, object
+import logging
+import signal
+import sys
 
 import stem
 
@@ -59,3 +62,30 @@ class EventHandler(object):
         descriptor.descriptor_received(descriptor_text)
 
         return None
+
+
+class SignalHandler(object):
+    """
+    Handle signals sent to the OnionBalance daemon process
+    """
+
+    def __init__(self, controller):
+        """
+        Setup signal handler
+        """
+        self.__tor_controller = controller
+
+        # Register signal handlers
+        signal.signal(signal.SIGTERM, self._handle_sigint_sigterm)
+        signal.signal(signal.SIGINT, self._handle_sigint_sigterm)
+
+    def _handle_sigint_sigterm(self, signum, frame):
+        """
+        Handle SIGINT (Ctrl-C) and SIGTERM
+
+        Disconnect from control port and cleanup the status socket
+        """
+        logger.info("Signal %d received, exiting", signum)
+        self.__tor_controller.close()
+        logging.shutdown()
+        sys.exit(0)
