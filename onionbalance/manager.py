@@ -132,7 +132,7 @@ def main():
 
     try:
         # Run initial fetch of HS instance descriptors
-        schedule.run_all(delay_seconds=30)
+        schedule.run_all(delay_seconds=config.INITIAL_DELAY)
 
         # Begin main loop to poll for HS descriptors
         while True:
