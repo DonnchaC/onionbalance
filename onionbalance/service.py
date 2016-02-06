@@ -143,7 +143,7 @@ class Service(object):
         # Upload multiple unique descriptors which contain different
         # subsets of the available introduction points.
         # (https://github.com/DonnchaC/onionbalance/issues/16)
-        distinct_descriptors = config.distinct_descriptors
+        distinct_descriptors = config.DISTINCT_DESCRIPTORS
 
         # If we have <= MAX_INTRO_POINTS we should choose the introduction
         # points now and use the same set in every descriptor. Using the

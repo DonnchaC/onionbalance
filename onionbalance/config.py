@@ -26,7 +26,7 @@ TOR_CONTROL_PASSWORD = None
 
 # Upload multiple distinct descriptors containing different subsets of
 # the available introduction points
-distinct_descriptors = True
+DISTINCT_DESCRIPTORS = True
 
 # Store global data about onion services and their instance nodes.
 services = []
