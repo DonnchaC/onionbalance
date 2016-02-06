@@ -102,6 +102,17 @@ PUBLISH_CHECK_INTERVAL
   How often should to check if new descriptors need to be published for
   the master hidden service (default: 360 seconds).
 
+INITIAL_DELAY
+  How long to wait between starting OnionBalance and publishing the master
+  descriptor. If you have more than 20 backend instances you may need to wait
+  longer for all instance descriptors to download before starting
+  (default: 45 seconds).
+
+DISTINCT_DESCRIPTORS
+  Distinct descriptors are used if you have more than 10 backend instances.
+  At the cost of scalability, this can be disabled to appear more like a
+  standard onion service. (default: True)
+
 The following options typically do not need to be modified by the end user:
 
 REPLICAS
