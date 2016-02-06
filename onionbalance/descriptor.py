@@ -98,8 +98,8 @@ def generate_service_descriptor(permanent_key, introduction_point_list=None,
     # Calculate the current secret-id-part for this hidden service
     # Deviation allows the generation of a descriptor for a different time
     # period.
-    time_period = (util.get_time_period(unix_timestamp, permanent_id)
-                   + int(deviation))
+    time_period = (util.get_time_period(unix_timestamp, permanent_id) +
+                   int(deviation))
 
     secret_id_part = util.calc_secret_id_part(time_period, None, replica)
     descriptor_id = util.calc_descriptor_id(permanent_id, secret_id_part)
@@ -226,8 +226,8 @@ def sign_descriptor(descriptor, service_key):
 
     # Remove signature block if it exists
     if token_descriptor_signature in descriptor:
-        descriptor = descriptor[:descriptor.find(token_descriptor_signature)
-                                + len(token_descriptor_signature)]
+        descriptor = descriptor[:descriptor.find(token_descriptor_signature) +
+                                len(token_descriptor_signature)]
     else:
         descriptor = descriptor.strip() + token_descriptor_signature
 

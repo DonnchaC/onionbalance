@@ -151,7 +151,7 @@ class Service(object):
         # Tor client.
         num_intro_points = len(intro_point_set)
 
-        if len(intro_point_set) <= max_intro_points:
+        if num_intro_points <= max_intro_points:
             intro_points = intro_point_set.choose(num_intro_points)
             logger.debug("We have %d IPs, not using distinct descriptors.",
                          len(intro_point_set))
