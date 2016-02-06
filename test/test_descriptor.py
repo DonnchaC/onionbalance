@@ -224,9 +224,11 @@ def test_introduction_point_selection(intro_point_distribution,
 
     intro_set = descriptor.IntroductionPointSet(available_intro_points)
 
-    # Max 10 introduction points per descriptor
-    choosen_intro_points = intro_set.choose(10)
-    assert len(choosen_intro_points) == selected_ip_count
+    # Check that we can fetch the same number for each descriptor
+    for i in range(0, 2):
+        # Max 10 introduction points per descriptor
+        choosen_intro_points = intro_set.choose(10)
+        assert len(choosen_intro_points) == selected_ip_count
 
 
 def test_generate_service_descriptor(monkeypatch, mocker):
