@@ -23,7 +23,7 @@ Features
 OnionBalance is under active development and new features are being added
 regularly:
 
-- Load balancing between up to 10 backend hidden services
+- Load balancing between up to 60 backend hidden services
 - Storage of the hidden service private key separate to th hidden service
   hosts
 

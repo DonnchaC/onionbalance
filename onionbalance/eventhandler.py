@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from builtins import str, object
 
+import stem
+
 from onionbalance import log
 from onionbalance import descriptor
+from onionbalance import consensus
 
 logger = log.get_logger()
 
@@ -12,6 +15,17 @@ class EventHandler(object):
     """
     Handles asynchronous Tor events.
     """
+
+    @staticmethod
+    def new_status(status_event):
+        """
+        Parse Tor status events such as "STATUS_GENERAL"
+        """
+        # pylint: disable=no-member
+        if status_event.status_type == stem.StatusType.GENERAL:
+            if status_event.action == "CONSENSUS_ARRIVED":
+                # Update the local view of the consensus in OnionBalance
+                consensus.refresh_consensus()
 
     @staticmethod
     def new_desc(desc_event):

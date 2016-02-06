@@ -177,15 +177,17 @@ Tor onion service descriptors can include a maximum of 10 introduction
 points. OnionBalance should select introduction points so as to
 uniformly distribute load across the available backend instances.
 
+Onionbalance will upload multiple distinct descriptors if you have configured
+more than 10 instances.
+
 -  **1 instance** - 3 IPs
 -  **2 instance** - 6 IPs (3 IPs from each instance)
 -  **3 instance** - 9 IPs (3 IPs from each instance)
 -  **4 instance** - 10 IPs (3 IPs from one instance, 2 from each other
    instance)
 -  **5 instance** - 10 IPs (2 IPs from each instance)
--  **6-9 instances** - 10 IPs (selection from all instances)
--  **10 or more instances** - 1 IP from a random selection of 10
-   instances.
+-  **6-10 instances** - 10 IPs (selection from all instances)
+-  **11 or more instances** - 10 IPs (distinct descriptors - selection from all instances)
 
 If running in Complex mode, introduction points can be selected so as to
 obscure that a service is using OnionBalance. Always attempting to

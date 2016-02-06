@@ -105,6 +105,9 @@ def initialize_services(controller, services_config):
             instances=instances
         ))
 
+        # Store a global reference to current controller connection
+        config.controller = controller
+
 
 def parse_cmd_args():
     """

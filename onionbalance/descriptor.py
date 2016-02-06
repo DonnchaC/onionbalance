@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from future.moves.itertools import zip_longest
 import hashlib
 import base64
 import textwrap
 import datetime
 import random
+import itertools
 
 import Crypto.Util.number
 import stem
@@ -15,59 +17,69 @@ from onionbalance import config
 logger = log.get_logger()
 
 
-def choose_introduction_point_set(available_introduction_points):
+class IntroductionPointSet(object):
     """
-    Select a set introduction points to included in a HS descriptor.
+    Select a set of introduction points to included in a HS descriptor.
 
     Provided with a list of available introduction points for each
-    backend instance for an onionbalance service.
+    backend instance for an onionbalance service. This object will store
+    the set of available introduction points and allow IPs to be selected
+    from the available set.
 
-    Introduciton points are selected to try and achieve the greatest
-    distribution of introduction points across all of the available backend
-    instances.
-
-    Return a list of IntroductionPoints.
+    This class tracks which introduction points have already been provided
+    and tries to provide the most diverse set of IPs.
     """
 
-    # Shuffle the instance order before beginning to pick intro points
-    random.shuffle(available_introduction_points)
+    def __init__(self, available_introduction_points):
+        # Shuffle the introduction point order before selecting IPs.
+        # Randomizing now allows later calls to .choose() to be
+        # deterministic.
+        for instance_intro_points in available_introduction_points:
+            random.shuffle(instance_intro_points)
+        random.shuffle(available_introduction_points)
 
-    num_active_instances = len(available_introduction_points)
-    ips_per_instance = [len(ips) for ips in available_introduction_points]
-    num_intro_points = sum(ips_per_instance)
+        self.available_intro_points = available_introduction_points
+        self.intro_point_generator = self.get_intro_point()
 
-    # Choose up to `MAX_INTRO_POINTS` IPs from the service instances. If less
-    # than `MAX_INTRO_POINTS` IPs are available, we should pick all available
-    # IP's
-    max_introduction_points = min(num_intro_points,
-                                  config.MAX_INTRO_POINTS)
+    def __len__(self):
+        """Provide the total number of available introduction points"""
+        return sum(len(ips) for ips in self.available_intro_points)
 
-    # Determine the maximum number of IP's which can be selected from
-    # each instance to give the widest distribution of introduction
-    # point
-    pos = 0
-    intro_selection = [0] * num_active_instances
+    def get_intro_point(self):
+        """
+        Generator function which yields an introduction point
 
-    # Keep looping until we have selected enough introduction points
-    while sum(intro_selection) < max_introduction_points:
-        # Check if the current instance has more IPs available
-        if(ips_per_instance[pos] - intro_selection[pos] > 0):
-            intro_selection[pos] += 1
-        # Increment and wrap the pointer to the current instance
-        pos = ((pos + 1) % num_active_instances)
+        Iterates through all available introduction points and try
+        to pick IPs breath first across all backend instances. The
+        intro point set is wrapped in `itertools.cycle` and will provided
+        an infinite series of introduction points.
+        """
 
-    # intro_selection now lists the count/number of IPs to select from each
-    # instance. We now sample the determined number of IPs from the IPs
-    # available for each instance.
-    choosen_intro_points = []
-    for count, intros in zip(intro_selection, available_introduction_points):
-        choosen_intro_points.extend(random.sample(intros, count))
+        # Combine intro points from across the backend instances and flatten
+        intro_points = zip_longest(*self.available_intro_points)
+        flat_intro_points = itertools.chain.from_iterable(intro_points)
+        for intro_point in itertools.cycle(flat_intro_points):
+            if intro_point:
+                yield intro_point
 
-    # Shuffle choosen IP's to try reveal less information about which
-    # instances are online and have introduction points included.
-    random.shuffle(choosen_intro_points)
+    def choose(self, count=10, shuffle=True):
+        """
+        Retrieve N introduction points from the set of IPs
 
-    return choosen_intro_points
+        Where more than `count` IPs are available, introduction points are
+        selected to try and achieve the greatest distribution of introduction
+        points across all of the available backend instances.
+
+        Return a list of IntroductionPoints.
+        """
+
+        # Limit `count` to the available number of IPs to avoid repeats.
+        count = min(len(self), count)
+        choosen_ips = list(itertools.islice(self.intro_point_generator, count))
+
+        if shuffle:
+            random.shuffle(choosen_ips)
+        return choosen_ips
 
 
 def generate_service_descriptor(permanent_key, introduction_point_list=None,
@@ -86,8 +98,8 @@ def generate_service_descriptor(permanent_key, introduction_point_list=None,
     # Calculate the current secret-id-part for this hidden service
     # Deviation allows the generation of a descriptor for a different time
     # period.
-    time_period = (util.get_time_period(unix_timestamp, permanent_id)
-                   + int(deviation))
+    time_period = (util.get_time_period(unix_timestamp, permanent_id) +
+                   int(deviation))
 
     secret_id_part = util.calc_secret_id_part(time_period, None, replica)
     descriptor_id = util.calc_descriptor_id(permanent_id, secret_id_part)
@@ -214,8 +226,8 @@ def sign_descriptor(descriptor, service_key):
 
     # Remove signature block if it exists
     if token_descriptor_signature in descriptor:
-        descriptor = descriptor[:descriptor.find(token_descriptor_signature)
-                                + len(token_descriptor_signature)]
+        descriptor = descriptor[:descriptor.find(token_descriptor_signature) +
+                                len(token_descriptor_signature)]
     else:
         descriptor = descriptor.strip() + token_descriptor_signature
 

@@ -10,6 +10,7 @@ from onionbalance import descriptor
 from onionbalance import util
 from onionbalance import log
 from onionbalance import config
+from onionbalance import consensus
 
 logger = log.get_logger()
 
@@ -95,6 +96,9 @@ class Service(object):
     def _select_introduction_points(self):
         """
         Choose set of introduction points from all fresh descriptors
+
+        Returns a descriptor.IntroductionPointSet() which can be used to
+        choose introduction points.
         """
         available_intro_points = []
 
@@ -125,49 +129,108 @@ class Service(object):
                 instance.changed_since_published = False
                 available_intro_points.append(instance.introduction_points)
 
-        num_intro_points = sum(len(ips) for ips in available_intro_points)
-        choosen_intro_points = descriptor.choose_introduction_point_set(
-            available_intro_points)
-
-        logger.debug("Selected %d IPs of %d for service %s.onion.",
-                     len(choosen_intro_points), num_intro_points,
-                     self.onion_address)
-
-        return choosen_intro_points
+        return descriptor.IntroductionPointSet(available_intro_points)
 
     def _publish_descriptor(self, deviation=0):
         """
-        Create, sign and uploads a master descriptor for this service
+        Create, sign and upload master descriptors for this service
         """
-        introduction_points = self._select_introduction_points()
+
+        # Retrieve the set of available introduction points
+        intro_point_set = self._select_introduction_points()
+        max_intro_points = config.MAX_INTRO_POINTS
+
+        # Upload multiple unique descriptors which contain different
+        # subsets of the available introduction points.
+        # (https://github.com/DonnchaC/onionbalance/issues/16)
+        distinct_descriptors = config.DISTINCT_DESCRIPTORS
+
+        # If we have <= MAX_INTRO_POINTS we should choose the introduction
+        # points now and use the same set in every descriptor. Using the
+        # same set of introduction points will look more like a standard
+        # Tor client.
+        num_intro_points = len(intro_point_set)
+
+        if num_intro_points <= max_intro_points:
+            intro_points = intro_point_set.choose(num_intro_points)
+            logger.debug("We have %d IPs, not using distinct descriptors.",
+                         len(intro_point_set))
+            distinct_descriptors = False
+
         for replica in range(0, config.REPLICAS):
-            try:
-                signed_descriptor = descriptor.generate_service_descriptor(
-                    self.service_key,
-                    introduction_point_list=introduction_points,
+            # Using distinct descriptors, choose a new set of intro points
+            # for each descriptor and upload it to individual HSDirs.
+            if distinct_descriptors:
+                descriptor_id = util.calc_descriptor_id_b32(
+                    self.onion_address,
+                    time=time.time(),
                     replica=replica,
-                    deviation=deviation
+                    deviation=deviation,
                 )
-            except ValueError as exc:
-                logger.warning("Error generating master descriptor: %s", exc)
+                responsible_hsdirs = consensus.get_hsdirs(descriptor_id)
+
+                for hsdir in responsible_hsdirs:
+                    intro_points = intro_point_set.choose(max_intro_points)
+                    try:
+                        signed_descriptor = (
+                            descriptor.generate_service_descriptor(
+                                self.service_key,
+                                introduction_point_list=intro_points,
+                                replica=replica,
+                                deviation=deviation
+                            ))
+                    except ValueError as exc:
+                        logger.warning("Error generating descriptor: %s", exc)
+                        continue
+
+                    # Signed descriptor was generated successfully, upload it
+                    # to the respective HSDir
+                    self._upload_descriptor(signed_descriptor, replica,
+                                            hsdirs=hsdir)
+                logger.info("Published distinct master descriptors for "
+                            "service %s.onion under replica %d.",
+                            self.onion_address, replica)
+
             else:
-                # Signed descriptor was generated successfully, upload it
+                # Not using distinct descriptors, upload one descriptor
+                # under each replica and let Tor pick the HSDirs.
                 try:
-                    descriptor.upload_descriptor(self.controller,
-                                                 signed_descriptor)
-                except stem.ControllerError:
-                    logger.exception("Error uploading descriptor for service "
-                                     "%s.onion.", self.onion_address)
-                else:
-                    logger.info("Published a descriptor for service "
-                                "%s.onion under replica %d.",
-                                self.onion_address, replica)
+                    signed_descriptor = descriptor.generate_service_descriptor(
+                        self.service_key,
+                        introduction_point_list=intro_points,
+                        replica=replica,
+                        deviation=deviation
+                    )
+                except ValueError as exc:
+                    logger.warning("Error generating descriptor: %s", exc)
+                    continue
+
+                # Signed descriptor was generated successfully, upload it
+                self._upload_descriptor(signed_descriptor, replica)
+                logger.info("Published a descriptor for service %s.onion "
+                            "under replica %d.", self.onion_address, replica)
 
         # It would be better to set last_uploaded when an upload succeeds and
         # not when an upload is just attempted. Unfortunately the HS_DESC #
         # UPLOADED event does not provide information about the service and
         # so it can't be used to determine when descriptor upload succeeds
         self.uploaded = datetime.datetime.utcnow()
+
+    def _upload_descriptor(self, signed_descriptor, replica, hsdirs=None):
+        """
+        Convenience method to upload a descriptor
+
+        Handle some error checking and logging inside the Service class
+        """
+        if hsdirs and not isinstance(hsdirs, list):
+            hsdirs = [hsdirs]
+
+        try:
+            descriptor.upload_descriptor(self.controller, signed_descriptor,
+                                         hsdirs=hsdirs)
+        except stem.ControllerError:
+            logger.exception("Error uploading descriptor for service "
+                             "%s.onion.", self.onion_address)
 
     def descriptor_publish(self, force_publish=False):
         """

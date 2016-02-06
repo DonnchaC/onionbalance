@@ -117,6 +117,8 @@ def main():
     # Finished parsing all the config file.
 
     handler = eventhandler.EventHandler()
+    controller.add_event_listener(handler.new_status,
+                                  EventType.STATUS_GENERAL)
     controller.add_event_listener(handler.new_desc,
                                   EventType.HS_DESC)
     controller.add_event_listener(handler.new_desc_content,
@@ -130,7 +132,7 @@ def main():
 
     try:
         # Run initial fetch of HS instance descriptors
-        schedule.run_all(delay_seconds=30)
+        schedule.run_all(delay_seconds=config.INITIAL_DELAY)
 
         # Begin main loop to poll for HS descriptors
         while True:
