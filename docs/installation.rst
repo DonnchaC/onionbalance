@@ -8,7 +8,7 @@ The OnionBalance software does not need to be installed on the
 backend servers which provide the hidden service content (i.e. web site,
 IRC server etc.).
 
-OnionBalance is not yet packaged for Linux and BSD. The tool can be
+OnionBalance is not yet packaged for most Linux and BSD. The tool can be
 installed from PyPI or directly from the Git repository:
 
 .. code-block:: console
@@ -22,6 +22,14 @@ or
     $ git clone https://github.com/DonnchaC/onionbalance.git
     $ cd onionbalance
     # python setup.py install
+
+If you are running Debian unstable or testing, you can install OnionBalance
+with the following command:
+
+.. code-block:: console
+
+   # apt-get install onionbalance
+
 
 All tagged releases on Github or PyPi are signed with my GPG key:
 
