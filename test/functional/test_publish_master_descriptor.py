@@ -70,7 +70,10 @@ def create_test_config_file(tmppath, private_key=None, instances=None):
     # Create YAML OnionBalance settings file for these instances
     service_data = {'key': str(key_path)}
     service_data['instances'] = [{'address': addr} for addr in instances]
-    settings_data = {'services': [service_data]}
+    settings_data = {
+        'services': [service_data],
+        'STATUS_SOCKET_LOCATION': str(tmppath.join('control')),
+    }
     config_yaml = yaml.dump(settings_data, default_flow_style=False)
 
     config_path = tmppath.join('config.yaml')
@@ -142,3 +145,30 @@ def test_master_descriptor_publication(tmpdir):
             # Check if all instance IPs were included in the master descriptor
             assert (set(ip.identifier for ip in instance_ips) ==
                     set(ip.identifier for ip in master_ips))
+
+    # Check that the control socket was created
+    socket_path = tmpdir.join('control')
+    assert socket_path.check()
+
+    # Connect to the control socket and check the output
+    sock_client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock_client.connect(str(socket_path))
+
+    # Read the data from the status socket
+    result = []
+    while True:
+        data = sock_client.recv(1024)
+        if not data:
+            break
+        result.append(data.decode('utf-8'))
+    result_data = ''.join(result)
+
+    # Check each instance is in the output
+    for instance_address in chutney_config.get('instances'):
+        assert instance_address in result_data
+
+    # Check all instances were online and all master descriptors uploaded
+    assert master_onion_address in result_data
+    assert '[offline]' not in result_data
+    assert '[not uploaded]' not in result_data
+
