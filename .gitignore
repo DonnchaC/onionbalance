@@ -56,3 +56,6 @@ target/
 # Config files and keys
 *.yaml
 *.key
+
+# Coverage files
+htmlcov

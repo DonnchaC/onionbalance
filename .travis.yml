@@ -11,6 +11,8 @@ before_install:
   - if [[ $TEST == 'functional' ]]; then ./test/scripts/install-tor.sh; fi
   - if [[ $TEST == 'functional' ]]; then source test/scripts/install-chutney.sh; fi
 install:
-  - pip install tox
+  - pip install tox coveralls
 script:
   - tox
+after_success:
+  - coveralls

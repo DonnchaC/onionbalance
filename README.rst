@@ -43,6 +43,11 @@ I can also be contacted by PGP email or on IRC at ``#onionbalance`` on the OFTC 
     :scale: 100%
     :target: https://travis-ci.org/DonnchaC/onionbalance
 
+
+.. |coverage| image:: https://coveralls.io/repos/github/DonnchaC/onionbalance/badge.svg?branch=master
+    :alt: Code coverage
+    :target: https://coveralls.io/github/DonnchaC/onionbalance?branch=master
+
 .. |docs| image:: https://readthedocs.org/projects/onionbalance/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%

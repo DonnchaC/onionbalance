@@ -2,3 +2,5 @@ pytest
 mock
 pytest-mock
 pexpect
+coveralls==1.1
+pytest-cov==2.2.1
