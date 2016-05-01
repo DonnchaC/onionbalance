@@ -69,11 +69,12 @@ class SignalHandler(object):
     Handle signals sent to the OnionBalance daemon process
     """
 
-    def __init__(self, controller):
+    def __init__(self, controller, status_socket):
         """
         Setup signal handler
         """
-        self.__tor_controller = controller
+        self._tor_controller = controller
+        self._status_socket = status_socket
 
         # Register signal handlers
         signal.signal(signal.SIGTERM, self._handle_sigint_sigterm)
@@ -86,6 +87,7 @@ class SignalHandler(object):
         Disconnect from control port and cleanup the status socket
         """
         logger.info("Signal %d received, exiting", signum)
-        self.__tor_controller.close()
+        self._tor_controller.close()
+        self._status_socket.close()
         logging.shutdown()
         sys.exit(0)

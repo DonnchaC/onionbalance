@@ -20,6 +20,9 @@ INITIAL_DELAY = 45  # Wait for instance descriptors before publishing
 LOG_LOCATION = os.environ.get('ONIONBALANCE_LOG_LOCATION')
 LOG_LEVEL = os.environ.get('ONIONBALANCE_LOG_LEVEL', 'info')
 
+STATUS_SOCKET_LOCATION = os.environ.get('ONIONBALANCE_STATUS_SOCKET_LOCATION',
+                                        '/var/run/onionbalance/control')
+
 TOR_ADDRESS = '127.0.0.1'
 TOR_PORT = 9051
 TOR_CONTROL_PASSWORD = None

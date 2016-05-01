@@ -18,6 +18,7 @@ from onionbalance import log
 from onionbalance import settings
 from onionbalance import config
 from onionbalance import eventhandler
+from onionbalance import status
 
 import onionbalance.service
 import onionbalance.instance
@@ -90,8 +91,6 @@ def main():
     else:
         logger.debug("Successfully connected to the Tor control port.")
 
-    eventhandler.SignalHandler(controller)
-
     try:
         controller.authenticate(password=config.TOR_CONTROL_PASSWORD)
     except stem.connection.AuthenticationFailure as exc:
@@ -99,6 +98,9 @@ def main():
         sys.exit(1)
     else:
         logger.debug("Successfully authenticated to the Tor control port.")
+
+    status_socket = status.StatusSocket(config.STATUS_SOCKET_LOCATION)
+    eventhandler.SignalHandler(controller, status_socket)
 
     # Disable no-member due to bug with "Instance of 'Enum' has no * member"
     # pylint: disable=no-member

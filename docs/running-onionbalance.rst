@@ -113,6 +113,12 @@ DISTINCT_DESCRIPTORS
   At the cost of scalability, this can be disabled to appear more like a
   standard onion service. (default: True)
 
+STATUS_SOCKET_LOCATION
+  The OnionBalance service creates a Unix domain socket which provides
+  real-time information about the currently loaded service and descriptors.
+  This option can be used to change the location of this domain socket.
+  (default: /var/run/onionbalance/control)
+
 The following options typically do not need to be modified by the end user:
 
 REPLICAS
@@ -148,6 +154,9 @@ ONIONBALANCE_LOG_LOCATION
   See the config file option.
 
 ONIONBALANCE_LOG_LEVEL
+  See the config file option
+
+ONIONBALANCE_STATUS_SOCKET_LOCATION
   See the config file option
 
 
