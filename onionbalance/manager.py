@@ -12,16 +12,17 @@ import logging
 # import Crypto.PublicKey
 import stem
 from stem.control import Controller, EventType
-import schedule
 
+import onionbalance
 from onionbalance import log
 from onionbalance import settings
 from onionbalance import config
 from onionbalance import eventhandler
 from onionbalance import status
+from onionbalance import scheduler
 
-import onionbalance.service
-import onionbalance.instance
+from onionbalance.service import publish_all_descriptors
+from onionbalance.instance import fetch_instance_descriptors
 
 logger = log.get_logger()
 
@@ -128,19 +129,14 @@ def main():
                                   EventType.HS_DESC_CONTENT)
 
     # Schedule descriptor fetch and upload events
-    schedule.every(config.REFRESH_INTERVAL).seconds.do(
-        onionbalance.instance.fetch_instance_descriptors, controller)
-    schedule.every(config.PUBLISH_CHECK_INTERVAL).seconds.do(
-        onionbalance.service.publish_all_descriptors)
+    scheduler.add_job(config.REFRESH_INTERVAL, fetch_instance_descriptors,
+                      controller)
+    scheduler.add_job(config.PUBLISH_CHECK_INTERVAL, publish_all_descriptors)
 
     # Run initial fetch of HS instance descriptors
-    schedule.run_all(delay_seconds=config.INITIAL_DELAY)
+    scheduler.run_all(delay_seconds=config.INITIAL_DELAY)
 
     # Begin main loop to poll for HS descriptors
-    while True:
-        try:
-            schedule.run_pending()
-        except Exception:
-            logger.error("Unexpected exception:", exc_info=True)
+    scheduler.run_forever()
 
     return 0
