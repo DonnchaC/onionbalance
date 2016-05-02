@@ -1,3 +1,28 @@
+0.1.4
+-----
+
+- Use setproctitle to set a cleaner process title
+- Replace the python-schedule dependency with a custom scheduler.
+- Add a Unix domain socket which outputs the status of the OnionBalance
+  service when a client connects. By default this socket is created at
+  `/var/run/onionbalance/control`. Thank you to Federico Ceratto for the
+  original socket implementation.
+- Add support for handling the `SIGINT` and `SIGTERM` signals. Thank you to
+  Federico Ceratto for this feature.
+- Upgrade tests to use the stable Tor 0.2.7.x release.
+- Fix bug when validating the modulus length of a provided RSA private key.
+- Upload distinct service descriptors to each hidden service directory by
+  default. The distinct descriptors allows up to 60 introduction points or
+  backend instances to be reachable by external clients. Thank you to Ceysun
+  Sucu for describing this technique in his Masters thesis.
+- Add `INITIAL_DELAY` option to wait longer before initial descriptor
+  publication. This is useful when there are many backend instance descriptors
+  which need to be downloaded.
+- Add configuration option to allow connecting to a Tor control port on a
+  different host.
+- Remove external image assets when documentation is generated locally
+  instead of on ReadTheDocs.
+
 0.1.3
 -----
 
