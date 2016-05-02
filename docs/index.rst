@@ -48,4 +48,5 @@ instructions.
    :maxdepth: 2
 
    design
+   contributors
    changelog

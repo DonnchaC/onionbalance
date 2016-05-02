@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-# OnionBalance - Status
-# Copyright: 2015 Federico Ceratto
-# Released under GPLv3, see COPYING file
-
 """
 Provide status over Unix socket
 Default path: /var/run/onionbalance/control
