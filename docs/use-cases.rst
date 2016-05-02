@@ -1,7 +1,7 @@
 Use Cases
 =========
 
-There a many ways to use OnionBalance to increase the scalabiliy, reliability and security of your onion service. The following are some examples of what is
+There a many ways to use OnionBalance to increase the scalability, reliability and security of your onion service. The following are some examples of what is
 possible.
 
 
@@ -38,3 +38,11 @@ Other Examples
   onion key in a secure location separate to their Tor process and other
   services. With this proposal permanent keys could be stored on an
   independent, isolated system.
+
+Research
+--------
+
+`Ceysun Sucu <https://github.com/csucu>`_ has analysed OnionBalance and other
+approaches to hidden service scaling in his masters thesis
+`Tor\: Hidden Service Scaling <https://www.benthamsgaze.org/wp-content/uploads/2015/11/sucu-torscaling.pdf>`_. The thesis provides a good overview of current approaches. It is a recommended read for those
+interested in higher performance hidden services.
