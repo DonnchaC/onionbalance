@@ -63,7 +63,7 @@ relative to the configuration file location.
 You can use existing Tor hidden service private key with OnionBalance
 to keep your onion address.
 
-Each backend Tor onion service instance is listed by it's unique onion
+Each backend Tor onion service instance is listed by its unique onion
 address in the ``instances`` list.
 
 .. note::

@@ -130,10 +130,10 @@ Complex Mode
 
 In Complex mode, introduction point information is uploaded directly from
 each instance to the management server via an onion service. The onion
-service instance does not publishing it's onion service descriptor to the
+service instance does not publishing its onion service descriptor to the
 HSDir system.
 
-A descriptor is uploaded from an instance to it's management servers
+A descriptor is uploaded from an instance to its management servers
 each time Tor generates a new onion service descriptor. A simple daemon
 running on the onion service instance listens for the event emitted on
 the Tor control port when a onion service descriptor is generated. The
@@ -148,7 +148,7 @@ The metadata channel should authorize connecting instance clients using
 Multiple management servers for the same onion service may communicate
 with each other via a hidden service channel. This extra channel can be
 used to signal when any of the management servers becomes unavailable. A
-slave management server may begin publishing service descriptors if it's
+slave management server may begin publishing service descriptors if its
 master management server is no longer available.
 
 Complex mode requires additional software to be run on the service
