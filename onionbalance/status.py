@@ -105,5 +105,7 @@ class StatusSocket(object):
             self.server.shutdown()
             self.server.server_close()
             self.cleanup_socket_file()
+        except AttributeError:
+            pass
         except OSError:
             logger.exception("Error when removing the status socket")
