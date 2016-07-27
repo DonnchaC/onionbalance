@@ -26,6 +26,8 @@ STATUS_SOCKET_LOCATION = os.environ.get('ONIONBALANCE_STATUS_SOCKET_LOCATION',
 TOR_ADDRESS = '127.0.0.1'
 TOR_PORT = 9051
 TOR_CONTROL_PASSWORD = None
+TOR_CONTROL_SOCKET = os.environ.get('ONIONBALANCE_TOR_CONTROL_SOCKET',
+                                    '/var/run/tor/control')
 
 # Upload multiple distinct descriptors containing different subsets of
 # the available introduction points

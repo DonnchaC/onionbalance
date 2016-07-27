@@ -84,6 +84,30 @@ you can simply use the generated config file from ``master/config.yaml``.
 Configuration Options
 ~~~~~~~~~~~~~~~~~~~~~
 
+The OnionBalance command line options can also be specified in the
+OnionBalance configuration file. Options specified on the command line
+take precedence over the related configuration file options:
+
+TOR_CONTROL_SOCKET:
+  The location of the Tor unix domain control socket. OnionBalance will
+  attempt to connect to this control socket first before falling back to
+  using a control port connection.
+  (default: /var/run/tor/control)
+
+TOR_ADDRESS:
+  The address where the Tor control port is listening. (default: 127.0.0.1)
+
+TOR_PORT:
+  The Tor control port. (default: 9051)
+
+TOR_CONTROL_PASSWORD:
+  The password for authenticating to a Tor control port which is using the
+  HashedControlPassword authentication method. This is not needed when the
+  Tor control port is using the more common CookieAuthentication method.
+  (default: None)
+
+Other options:
+
 LOG_LOCATION
   The path where OnionBalance should write its log file.
 
@@ -157,6 +181,9 @@ ONIONBALANCE_LOG_LEVEL
   See the config file option
 
 ONIONBALANCE_STATUS_SOCKET_LOCATION
+  See the config file option
+
+ONIONBALANCE_TOR_CONTROL_SOCKET
   See the config file option
 
 

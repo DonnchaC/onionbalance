@@ -43,6 +43,9 @@ def parse_cmd_args():
     parser.add_argument("-p", "--port", type=int, default=None,
                         help="Tor controller port")
 
+    parser.add_argument("-s", "--socket", type=str, default=None,
+                        help="Tor unix domain control socket location")
+
     parser.add_argument("-c", "--config", type=str,
                         default=os.environ.get('ONIONBALANCE_CONFIG',
                                                "config.yaml"),
@@ -82,25 +85,35 @@ def main():
 
     logger.setLevel(logging.__dict__[config.LOG_LEVEL.upper()])
 
-    # Create a connection to the Tor control port
+    # Create a connection to the Tor unix domain control socket or control port
     try:
+        tor_socket = (args.socket or config.TOR_CONTROL_SOCKET)
         tor_address = (args.ip or config.TOR_ADDRESS)
         tor_port = (args.port or config.TOR_PORT)
-
-        controller = Controller.from_port(address=tor_address, port=tor_port)
+        try:
+            controller = Controller.from_socket_file(path=tor_socket)
+            logger.debug("Successfully connected to the Tor control socket "
+                         "%s.", tor_socket)
+        except stem.SocketError:
+            logger.debug("Unable to connect to the Tor control socket %s.",
+                         tor_socket)
+            controller = Controller.from_port(address=tor_address,
+                                              port=tor_port)
+            logger.debug("Successfully connected to the Tor control port.")
     except stem.SocketError as exc:
-        logger.error("Unable to connect to Tor control port: %s", exc)
+        logger.error("Unable to connect to Tor control socket or port: %s",
+                     exc)
         sys.exit(1)
-    else:
-        logger.debug("Successfully connected to the Tor control port.")
 
     try:
         controller.authenticate(password=config.TOR_CONTROL_PASSWORD)
     except stem.connection.AuthenticationFailure as exc:
-        logger.error("Unable to authenticate to Tor control port: %s", exc)
+        logger.error("Unable to authenticate on the Tor control connection: "
+                     "%s", exc)
         sys.exit(1)
     else:
-        logger.debug("Successfully authenticated to the Tor control port.")
+        logger.debug("Successfully authenticated on the Tor control "
+                     "connection.")
 
     status_socket = status.StatusSocket(config.STATUS_SOCKET_LOCATION)
     eventhandler.SignalHandler(controller, status_socket)
