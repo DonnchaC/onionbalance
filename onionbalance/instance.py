@@ -38,6 +38,8 @@ class Instance(object):
         self.controller = controller
 
         # Onion address for the service instance.
+        if onion_address:
+            onion_address = onion_address.strip('.onion')
         self.onion_address = onion_address
         self.authentication_cookie = authentication_cookie
 

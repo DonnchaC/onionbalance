@@ -1,6 +1,8 @@
 UNRELEASED
 ----------
 
+- Fix bug loading descriptors when an address with .onion extension is listed
+  in the configuration file. #37
 - Add support for connecting to the Tor control port over a unix domain socket.
 
 0.1.4
