@@ -1,6 +1,7 @@
 UNRELEASED
 ----------
 
+- Log error when OnionBalance does not have permission to read a private key. #34
 - Fix bug loading descriptors when an address with .onion extension is listed
   in the configuration file. #37
 - Add support for connecting to the Tor control port over a unix domain socket.
