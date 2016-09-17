@@ -12,6 +12,8 @@ Architecture
 
 The management server runs the OnionBalance daemon. OnionBalance combines the routing information (the introduction points) for multiple backend onion services instances and publishes this information in a master descriptor..
 
+.. image:: ../onionbalance.png
+
 The backend application servers run a standard Tor onion service. When a client connects to the public onion service they select one of the introduction points at random. When the introduction circuit completes the user is connected to the corresponding backend instance.
 
 **Management Server**
