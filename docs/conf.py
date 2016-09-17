@@ -21,7 +21,7 @@ import sphinx.environment
 from docutils.utils import get_source_line
 
 # Documentation configuration
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 __author__ = "Donncha O'Cearbhaill"
 __contact__ = "donncha@donncha.is"
 

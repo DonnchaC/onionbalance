@@ -1,5 +1,5 @@
-UNRELEASED
-----------
+0.1.5
+-----
 
 - Log error when OnionBalance does not have permission to read a private key. #34
 - Fix bug loading descriptors when an address with .onion extension is listed
