@@ -31,7 +31,7 @@ regularly:
 User Guide
 ==========
 
-Onionbalance consists of a long-running daemon and a command-line
+OnionBalance consists of a long-running daemon and a command-line
 configuration tool. Please see the :ref:`getting_started` page for usage
 instructions.
 

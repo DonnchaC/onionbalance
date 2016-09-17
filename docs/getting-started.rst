@@ -4,28 +4,25 @@ Getting Started
 ===============
 
 OnionBalance implements `round-robin` like load balancing on top of Tor
-hidden services. A typical OnionBalance deployment will incorporate one management
+onion services. A typical OnionBalance deployment will incorporate one management
 servers and multiple backend application servers.
 
 Architecture
 ------------
 
-The management server runs the OnionBalance daemon and will regularly publish
-hidden service routing information to the Tor network.
+The management server runs the OnionBalance daemon. OnionBalance combines the routing information (the introduction points) for multiple backend onion services instances and publishes this information in a master descriptor..
 
-The backend application servers / node runs their own standard Tor
-hidden service. Client access the public hidden service address are then
-routed to one of the backend application servers.
+The backend application servers run a standard Tor onion service. When a client connects to the public onion service they select one of the introduction points at random. When the introduction circuit completes the user is connected to the corresponding backend instance.
 
 **Management Server**
-  is the machine running the OnionBalance daemon. It the master hidden
-  service private key.
+  is the machine running the OnionBalance daemon. It needs to have access to the onion
+  service private key corresponding for the desired onion address. This is the public onion address that users will request.
 
   This machine can be located geographically isolated from the machines
-  hosting the hidden service content. It does not need to serve any content.
+  hosting the onion service content. It does not need to serve any content.
 
 **Backend Instance**
-  Each backend application server will run a Tor hidden service. EXPLAIN
+  Each backend application server runs a Tor onion service with a unique onion service key.
 
 .. note::
     The :ref:`onionbalance-config <onionbalance_config>` tool can be used to
@@ -53,7 +50,7 @@ CLI Documentation
 Installing and Configuring Tor
 ------------------------------
 
-Tor is need on the management server and every backend hidden service
+Tor is need on the management server and every backend onion service
 instance.
 
 Management Server
