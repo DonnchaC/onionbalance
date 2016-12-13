@@ -328,7 +328,7 @@ def generate_config():
                                   'name': '{}{}'.format(tag, i+1)} for
                                  i, (address, _) in enumerate(instances)]
     settings_data = {'services': [service_data]}
-    config_yaml = yaml.dump(settings_data, default_flow_style=False)
+    config_yaml = yaml.safe_dump(settings_data, default_flow_style=False)
 
     config_file_path = os.path.join(master_dir, 'config.yaml')
     with open(config_file_path, "w") as config_file:
