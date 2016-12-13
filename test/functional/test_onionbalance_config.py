@@ -64,6 +64,9 @@ def check_basic_config_output(config_dir):
     config_file = config_dir.join('master', 'config.yaml').read_text('utf-8')
     assert all(address in config_file for address in instance_addresses)
 
+    # Test that all addresses are encoded as bytes and not unicode
+    assert "!!python/unicode" not in config_file
+
     return True
 
 
