@@ -78,7 +78,7 @@ class Instance(object):
         # Timestamp of the currently loaded descriptor
         self.timestamp = None
 
-        # Flag this instance with it's introduction points change. A new
+        # Flag this instance with its introduction points change. A new
         # master descriptor will then be published as the introduction
         # points have changed.
         self.changed_since_published = False
@@ -116,12 +116,15 @@ class Instance(object):
                      self.onion_address)
 
         # Reject descriptor if its timestamp is older than the current
-        # descriptor. Prevent's HSDir's replaying old, expired descriptors.
+        # descriptor. Prevents HSDirs from replaying old, expired
+        # descriptors.
         if self.timestamp and parsed_descriptor.published < self.timestamp:
             logger.error("Received descriptor for instance %s.onion with "
-                         "publication timestamp older than the latest "
-                         "descriptor. Ignoring the descriptor.",
-                         self.onion_address)
+                         "publication timestamp (%s) older than the latest "
+                         "descriptor (%s). Ignoring the descriptor.",
+                         self.onion_address,
+                         parsed_descriptor.published,
+                         self.timestamp)
             return
         else:
             self.timestamp = parsed_descriptor.published
