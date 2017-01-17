@@ -6,6 +6,7 @@ import stem.control
 
 from onionbalance import log
 from onionbalance import config
+from onionbalance import util
 
 logger = log.get_logger()
 
@@ -16,14 +17,31 @@ def fetch_instance_descriptors(controller):
     """
     logger.info("Initiating fetch of descriptors for all service instances.")
 
-    # Clear Tor descriptor cache before making fetches by sending NEWNYM
     # pylint: disable=no-member
-    controller.signal(stem.control.Signal.NEWNYM)
-    time.sleep(5)
+
+    while True:
+        try:
+            # Clear Tor descriptor cache before making fetches by sending
+            # the NEWNYM singal
+            controller.signal(stem.control.Signal.NEWNYM)
+            time.sleep(5)  # Sleep to allow Tor time to build new circuits
+        except stem.SocketClosed:
+            logger.error("Failed to send NEWNYM signal, socket is closed.")
+            util.reauthenticate(controller, logger)
+        else:
+            break
 
     for service in config.services:
         for instance in service.instances:
-            instance.fetch_descriptor()
+            while True:
+                try:
+                    instance.fetch_descriptor()
+                except stem.SocketClosed:
+                    logger.error("Failed to fecth descriptor, socket "
+                                 "is closed")
+                    util.reauthenticate(controller, logger)
+                else:
+                    break
 
 
 class Instance(object):
@@ -66,6 +84,9 @@ class Instance(object):
         try:
             self.controller.get_hidden_service_descriptor(self.onion_address,
                                                           await_result=False)
+        except stem.SocketClosed:
+            # Tor maybe restarting.
+            raise
         except stem.DescriptorUnavailable:
             # Could not find the descriptor on the HSDir
             self.received = None
