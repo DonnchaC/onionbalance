@@ -255,19 +255,21 @@ def descriptor_received(descriptor_content):
     descriptor_onion_address = util.calc_onion_address(permanent_key)
 
     # Find the HS instance for this descriptor
+    known_descriptor = False
     for service in config.services:
         for instance in service.instances:
             if instance.onion_address == descriptor_onion_address:
-                # Update the descriptor and exit
+                # Update the descriptor
                 instance.update_descriptor(parsed_descriptor)
-                return None
+                known_descriptor = True
 
-    # No matching service instance was found for the descriptor
-    logger.debug("Received a descriptor for an unknown service:\n%s",
-                 descriptor_content.decode('utf-8'))
-    logger.warning("Received a descriptor with address %s.onion that "
-                   "did not match any configured service instances.",
-                   descriptor_onion_address)
+    if not known_descriptor:
+        # No matching service instance was found for the descriptor
+        logger.debug("Received a descriptor for an unknown service:\n%s",
+                     descriptor_content.decode('utf-8'))
+        logger.warning("Received a descriptor with address %s.onion that "
+                       "did not match any configured service instances.",
+                       descriptor_onion_address)
 
     return None
 
