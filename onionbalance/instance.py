@@ -106,7 +106,8 @@ class Instance(object):
         Update introduction points when a new HS descriptor is received
 
         Parse the descriptor content and update the set of introduction
-        points for this HS instance.
+        points for this HS instance. Returns True if the introduction
+        point set has changed, False otherwise.`
         """
 
         self.received = datetime.datetime.utcnow()
@@ -135,14 +136,14 @@ class Instance(object):
         # (fingerprint of the per IP circuit service key).
         if (set(ip.identifier for ip in introduction_points) !=
                 set(ip.identifier for ip in self.introduction_points)):
-            logger.info("The introduction point set has changed for instance "
-                        "%s.onion.", self.onion_address)
             self.changed_since_published = True
             self.introduction_points = introduction_points
+            return True
 
         else:
             logger.debug("Introduction points for instance %s.onion matched "
                          "the cached set.", self.onion_address)
+            return False
 
     def __eq__(self, other):
         """
