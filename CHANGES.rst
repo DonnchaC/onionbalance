@@ -1,3 +1,18 @@
+0.1.7
+-----
+
+- Add functionality to reconnect to the Tor control port while OnionBalance is
+  running. Thank you to Ceysun Sucu for the patch. #45
+- Fix bug where instance descriptors were not updated correctly when an
+  instance address was listed under multiple master service. #49
+- Improve performance by only requesting each unique instance descriptor
+  once per round, rather once for each time it was listed in the config
+  file. #51
+- Fix bug where an exception was raised when the status socket location did
+  not exist.
+- Improve the installation documentation for Debian and Fedora/EPEL
+  installations.
+
 0.1.6
 -----
 
