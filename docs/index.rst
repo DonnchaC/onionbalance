@@ -35,6 +35,7 @@ Assuming there is no previous configuration in ``/etc/onionbalance``:
 
 .. code-block:: console
 
+   $ sudo apt-get install onionbalance
    $ onionbalance-config
    $ sudo cp ./config/master/*.key /etc/onionbalance/
    $ sudo cp ./config/master/config.yaml /etc/onionbalance/
@@ -55,6 +56,7 @@ Check the logs. The following warnings are expected:
 
 Copy the ``instance_torrc`` and ``private_key`` files from each of the directories named ``./config/``, ``srv1``, ``srv2``, ... to each of the Tor servers providing the Onion Services.
 
+Configure and start the instance services. The onion service managed by OnionBalance should be ready within 10 minutes.
 
 User Guide
 ==========
