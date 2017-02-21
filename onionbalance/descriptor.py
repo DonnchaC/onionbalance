@@ -254,14 +254,16 @@ def descriptor_received(descriptor_content):
         parsed_descriptor.permanent_key)
     descriptor_onion_address = util.calc_onion_address(permanent_key)
 
-    # Find the HS instance for this descriptor
-    known_descriptor = False
-    for service in config.services:
-        for instance in service.instances:
-            if instance.onion_address == descriptor_onion_address:
-                # Update the descriptor
-                instance.update_descriptor(parsed_descriptor)
-                known_descriptor = True
+    known_descriptor, instance_changed = False, False
+    for instance in [instance for service in config.services for
+                     instance in service.instances]:
+        if instance.onion_address == descriptor_onion_address:
+            instance_changed |= instance.update_descriptor(parsed_descriptor)
+            known_descriptor = True
+
+    if instance_changed:
+        logger.info("The introduction point set has changed for instance "
+                    "%s.onion.", descriptor_onion_address)
 
     if not known_descriptor:
         # No matching service instance was found for the descriptor

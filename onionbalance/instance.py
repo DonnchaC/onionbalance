@@ -31,17 +31,25 @@ def fetch_instance_descriptors(controller):
         else:
             break
 
-    for service in config.services:
-        for instance in service.instances:
-            while True:
-                try:
-                    instance.fetch_descriptor()
-                except stem.SocketClosed:
-                    logger.error("Failed to fecth descriptor, socket "
-                                 "is closed")
-                    util.reauthenticate(controller, logger)
-                else:
-                    break
+    unique_instances = set(instance for service in config.services
+                           for instance in service.instances)
+
+    # Only try to retrieve the descriptor once for each unique instance
+    # address. An instance may be configured under multiple master
+    # addressed. We do not want to request the same instance descriptor
+    # multiple times.
+    # OnionBalance will update all of the matching instances when a
+    # descriptor is received.
+    for instance in unique_instances:
+        while True:
+            try:
+                instance.fetch_descriptor()
+            except stem.SocketClosed:
+                logger.error("Failed to fecth descriptor, socket "
+                             "is closed")
+                util.reauthenticate(controller, logger)
+            else:
+                break
 
 
 class Instance(object):
@@ -98,7 +106,8 @@ class Instance(object):
         Update introduction points when a new HS descriptor is received
 
         Parse the descriptor content and update the set of introduction
-        points for this HS instance.
+        points for this HS instance. Returns True if the introduction
+        point set has changed, False otherwise.`
         """
 
         self.received = datetime.datetime.utcnow()
@@ -127,11 +136,26 @@ class Instance(object):
         # (fingerprint of the per IP circuit service key).
         if (set(ip.identifier for ip in introduction_points) !=
                 set(ip.identifier for ip in self.introduction_points)):
-            logger.info("The introduction point set has changed for instance "
-                        "%s.onion.", self.onion_address)
             self.changed_since_published = True
             self.introduction_points = introduction_points
+            return True
 
         else:
             logger.debug("Introduction points for instance %s.onion matched "
                          "the cached set.", self.onion_address)
+            return False
+
+    def __eq__(self, other):
+        """
+        Instance objects are equal if they have the same onion address.
+        """
+        if isinstance(other, Instance):
+            return self.onion_address == other.onion_address
+        else:
+            return False
+
+    def __hash__(self):
+        """
+        Define __hash__ method allowing for set comparison between instances.
+        """
+        return hash(self.onion_address)
