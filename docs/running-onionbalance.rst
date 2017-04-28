@@ -118,7 +118,7 @@ LOG_LEVEL
 
 REFRESH_INTERVAL
   How often to check for updated backend hidden service descriptors. This
-  value can be increased if your backend instance are under heavy loaded
+  value can be decreased if your backend instance are under heavy loaded
   causing them to rotate introduction points quickly.
   (default: 600 seconds).
 
