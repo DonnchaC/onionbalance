@@ -28,7 +28,12 @@ class EventHandler(object):
         if status_event.status_type == stem.StatusType.GENERAL:
             if status_event.action == "CONSENSUS_ARRIVED":
                 # Update the local view of the consensus in OnionBalance
-                consensus.refresh_consensus()
+                try:
+                    consensus.refresh_consensus()
+                except Exception:
+                    logger.exception("An unexpected exception occured in the "
+                                     "when processing the consensus update "
+                                     "callback.")
 
     @staticmethod
     def new_desc(desc_event):
@@ -59,7 +64,11 @@ class EventHandler(object):
             return None
 
         # Send content to callback function which will process the descriptor
-        descriptor.descriptor_received(descriptor_text)
+        try:
+            descriptor.descriptor_received(descriptor_text)
+        except Exception:
+            logger.exception("An unexpected exception occured in the "
+                             "new descriptor callback.")
 
         return None
 

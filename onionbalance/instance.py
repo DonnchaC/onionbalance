@@ -125,7 +125,7 @@ class Instance(object):
                          self.onion_address,
                          parsed_descriptor.published,
                          self.timestamp)
-            return
+            return False
         else:
             self.timestamp = parsed_descriptor.published
 
