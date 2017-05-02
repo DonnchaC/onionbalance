@@ -31,6 +31,10 @@ regularly:
 Quickstart
 ==========
 
+The OnionBalance ::ref::`tutorial` describes the deployment of an onion service with
+multiple backed Tor instances and web servers. The following is a minimal
+quickstart guide for a new installation.
+
 Assuming there is no previous configuration in ``/etc/onionbalance``:
 
 .. code-block:: console
@@ -73,6 +77,7 @@ instructions.
    getting-started
    running-onionbalance
    use-cases
+   tutorial
 
 .. toctree::
    :maxdepth: 2

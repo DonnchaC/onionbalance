@@ -1,3 +1,10 @@
+0.1.8
+-----
+
+- Fix a bug which could cause descriptor fetching to crash and stall if an
+  old instance descriptor was retrieved from a HSDir. #64
+- Minors fixes to documentation and addition of a tutorial.
+
 0.1.7
 -----
 
